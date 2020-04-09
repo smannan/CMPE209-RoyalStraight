@@ -2,7 +2,7 @@ import sqlite3
 from uuid import uuid4
 #this is the connection to the database, if Db does not exsist it will create. 
 conn = sqlite3.connect('house.db')
-
+conn.execute("PRAGMA forign_keys =1")
 #this is the object that you call to make changes to the DB
 c = conn.cursor()
 
@@ -11,7 +11,7 @@ def create_tables():
 	#use the cursor object to call SQL
 	#User text,FOREIGN KEY (User) REFERENCES users(UserID)))""")
 	createUser = "CREATE TABLE IF NOT EXISTS users(username VARCHAR PRIMARY KEY, pubkey TEXT UNIQUE)"
-	createPlayer = "CREATE TABLE IF NOT EXISTS players(seskey TEXT PRIMARY KEY, username VARCHAR, balance INTEGER DEFAULT 500, FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE)"
+	createPlayer = "CREATE TABLE IF NOT EXISTS players(username VARCHAR, seskey TEXT PRIMARY KEY, balance INTEGER DEFAULT 500, FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE)"
 	c.execute(createUser)
 	c.execute(createPlayer)
 
@@ -35,7 +35,7 @@ def insert_custom_player(playerName, sesKey,  balance):
 #Dynamically UPDATE data in tables
 def update_user_pubkey(userName, pubKey):
 	sql_update_query = "UPDATE users SET pubkey = ? WHERE username = ?"
-	c.execute(sql_update_query, (userName, pubKey))
+	c.execute(sql_update_query, (pubKey, userName))
 	conn.commit()
 
 def update_player_seskey(userName, sesKey):
@@ -49,21 +49,20 @@ def update_player_balance(userName, balance):
 	conn.commit()
 
 #Dynamically DELETE data in tables
-def update_user(userName):
+def delete_user(userName):
 	sql_delete_query = "DELETE FROM users WHERE username = ?"
-	c.execute(sql_delete_query, (userName))
+	c.execute(sql_delete_query, (userName,))
 	conn.commit()
 
-def update_player(userName):
+def delete_player(userName):
 	sql_delete_query = "DELETE FROM players WHERE username = ?"
-	c.execute(sql_delete_query, (userName))
+	c.execute(sql_delete_query, (userName,))
 	conn.commit()
 
 
 #Dynamically SELECT data from tables
 def getPublicKey(username):
-	sql_select_query= "SELECT pubkey FROM users WHERE username = ?"
-	
+	sql_select_query= "SELECT pubkey FROM users WHERE username = ?"	
 	try:
 		c.execute(sql_select_query, (username,))
 		result = c.fetchone()[0]
@@ -73,27 +72,21 @@ def getPublicKey(username):
 
 
 def getSesKey(username):
-	sql_select_query= "SELECT * FROM players"
+	sql_select_query= "SELECT seskey FROM players where username = ?"
 	try:
-		c.execute(sql_select_query)
-		result = c.fetchall()
-		for row in result:
-			if row[0] == username:
-				return row[1]
-		return "no username found"
+		c.execute(sql_select_query, (username,))
+		result = c.fetchone()[0]
+		return result
 	except sqlite3.DatabaseError as e:
 		print("Error: %s" % (e.args[0]))
 
 
 def getBalance(username):
-	sql_select_query= "SELECT * FROM players"
+	sql_select_query= "SELECT balance FROM players where username = ?"
 	try:
-		c.execute(sql_select_query)
-		result = c.fetchall()
-		for row in result:
-			if row[0] == username:
-				return row[2]
-		return "no balnace found"
+		c.execute(sql_select_query, (username,))
+		result = c.fetchone()[0]
+		return result
 	except sqlite3.DatabaseError as e:
 		print("Error: %s" % (e.args[0]))
 
@@ -133,15 +126,6 @@ def players():
 	except sqlite3.DatabaseError as e:
 		print("Error: %s" % (e.args[0]))
 
-def clearDB():
-	sql = "DROP TABLE IF EXISTS players"
-	sql2 = "DROP TABLE IF EXISTS users"
-	c.execute(sql)
-	c.execute(sql2)
-	conn.commit()
-	
-
-
 def startup():
 	create_tables()
 	player1 = "ksbains"
@@ -174,10 +158,14 @@ def startup():
 	insert_user(player4, rand_token4)
 	insert_new_player(player4,sesKey4)
 
+def clearDB():
+	sql = "DROP TABLE IF EXISTS players"
+	sql2 = "DROP TABLE IF EXISTS users"
+	c.execute(sql)
+	c.execute(sql2)
+	conn.commit()
+
 def main():
-	
-
-
 	#this is the main function
 	print("This is the start of the script")
 	#clearDB()
@@ -186,20 +174,21 @@ def main():
 	print("-USERNAME--------------PUBLIC KEY-----------------------------------------")
 	users()
 	print("--------------------------This is the Players Table----------------------------")
-	print("-USERNAME--------------PUBLIC KEY-------------------------BALANCE-----")
+	print("-USERNAME--------------SESSION KEY-------------------------BALANCE-----")
 	players()
 	print("--------------------------This is the TEST----------------------------")
-	player = "ksbains"
-	publicKey = getPublicKey(player)
-	sessionKey = getSesKey(player)
-	balance = getBalance(player)
-	print("The Public Key for ksbains is:" + publicKey)
-	print("The Session Key for ksbains is:" + sessionKey)
-	print("The Balance for ksbains is:" + str(balance))
-	print("This is the end of the script")
+	username = "ksbains"
+	delete_player(username)
+	delete_user("wearnold")
+	print("-USERNAME--------------PUBLIC KEY-----------------------------------------")
+	users()
+	print("-USERNAME--------------SESSION KEY-------------------------BALANCE-----")
+	players()
 
-
-
+#this is where the script starts and ends. 
 main()
+
+# clearDB()
+# startup()
 
 
