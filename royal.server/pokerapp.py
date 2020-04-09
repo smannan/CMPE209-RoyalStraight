@@ -18,6 +18,20 @@ user = api.model('User', {
     "pubkey" : fields.String(required=True, description="User's pubkey")
 })
 
+# Defines the players playing in game
+# { "id": username, "seskey": seskey}
+player = api.model('User', {
+    "id": fields.String(required=True, description="User's unique username"),
+    "pubkey" : fields.String(required=True, description="User's sessionkey")
+})
+
+
+# Defines the player's balances playing in game
+# { "seskey": seskey, "seskey": seskey}
+player = api.model('User', {
+    "id": fields.String(required=True, description="User's unique username"),
+    "pubkey" : fields.String(required=True, description="User's sessionkey")
+})
 
 # Defines the data object
 # TODO: Calls to database would happen here, instead of having a "users" object
@@ -58,11 +72,11 @@ DAO.create({
 })
 DAO.create({
     'id': 'warnold23',
-    'pubkey':'1234567890abcdef1234567890'
+    'pubkey':'1234567890abcdef1234567891'
 })
 DAO.create({
     'id': 'warnold23',
-    'pubkey':'1234567890abcdef1234567890'
+    'pubkey':'1234567890abcdef1234567892'
 })
 
 
