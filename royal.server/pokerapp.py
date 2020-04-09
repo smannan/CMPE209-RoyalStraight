@@ -20,17 +20,10 @@ user = api.model('User', {
 
 # Defines the players playing in game
 # { "id": username, "seskey": seskey}
-player = api.model('User', {
-    "id": fields.String(required=True, description="User's unique username"),
-    "pubkey" : fields.String(required=True, description="User's sessionkey")
-})
-
-
-# Defines the player's balances playing in game
-# { "seskey": seskey, "seskey": seskey}
-player = api.model('User', {
-    "id": fields.String(required=True, description="User's unique username"),
-    "pubkey" : fields.String(required=True, description="User's sessionkey")
+player = api.model('Player', {
+    "id": fields.String(required=True, description="Player's unique username"),
+    "seskey" : fields.String(required=True, description="Player's sessionkey"),
+    "balance" : fields.String(required=True, description="Player's Balance")
 })
 
 # Defines the data object

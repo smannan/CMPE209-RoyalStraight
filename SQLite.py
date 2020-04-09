@@ -65,7 +65,7 @@ def getPublicKey(username):
 	sql_select_query= "SELECT pubkey FROM users WHERE username = ?"
 	
 	try:
-		c.execute(sql_select_query, (username))
+		c.execute(sql_select_query, (username,))
 		result = c.fetchone()[0]
 		return result
 	except sqlite3.DatabaseError as e:
@@ -73,23 +73,27 @@ def getPublicKey(username):
 
 
 def getSesKey(username):
-	sql_select_query= "SELECT seskey FROM players WHERE username = ?"
-	
+	sql_select_query= "SELECT * FROM players"
 	try:
-		c.execute(sql_select_query, (username))
-		result = c.fetchone()[0]
-		return result
+		c.execute(sql_select_query)
+		result = c.fetchall()
+		for row in result:
+			if row[0] == username:
+				return row[1]
+		return "no username found"
 	except sqlite3.DatabaseError as e:
 		print("Error: %s" % (e.args[0]))
 
 
 def getBalance(username):
-	sql_select_query= "SELECT balance FROM players WHERE username = ?"
-	
+	sql_select_query= "SELECT * FROM players"
 	try:
-		c.execute(sql_select_query, (username))
-		result = c.fetchone()[0]
-		return result
+		c.execute(sql_select_query)
+		result = c.fetchall()
+		for row in result:
+			if row[0] == username:
+				return row[2]
+		return "no balnace found"
 	except sqlite3.DatabaseError as e:
 		print("Error: %s" % (e.args[0]))
 
@@ -129,7 +133,14 @@ def players():
 	except sqlite3.DatabaseError as e:
 		print("Error: %s" % (e.args[0]))
 
+def clearDB():
+	sql = "DROP TABLE IF EXISTS players"
+	sql2 = "DROP TABLE IF EXISTS users"
+	c.execute(sql)
+	c.execute(sql2)
+	conn.commit()
 	
+
 
 def startup():
 	create_tables()
@@ -151,8 +162,8 @@ def startup():
 	sesKey4 = uuid4().urn
 	
 	#insert into tables
-	#insert_user(player1, rand_token1)
-	#insert_new_player(player1, sesKey1)
+	insert_user(player1, rand_token1)
+	insert_new_player(player1, sesKey1)
 
 	insert_user(player2, rand_token2)
 	insert_new_player(player2,sesKey2)
@@ -164,10 +175,27 @@ def startup():
 	insert_new_player(player4,sesKey4)
 
 def main():
+	
+
+
 	#this is the main function
 	print("This is the start of the script")
+	#clearDB()
+	#startup()
+	print("--------------------------This is the Users Table----------------------------")
+	print("-USERNAME--------------PUBLIC KEY-----------------------------------------")
 	users()
+	print("--------------------------This is the Players Table----------------------------")
+	print("-USERNAME--------------PUBLIC KEY-------------------------BALANCE-----")
 	players()
+	print("--------------------------This is the TEST----------------------------")
+	player = "ksbains"
+	publicKey = getPublicKey(player)
+	sessionKey = getSesKey(player)
+	balance = getBalance(player)
+	print("The Public Key for ksbains is:" + publicKey)
+	print("The Session Key for ksbains is:" + sessionKey)
+	print("The Balance for ksbains is:" + str(balance))
 	print("This is the end of the script")
 
 
