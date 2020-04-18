@@ -1,7 +1,4 @@
 import random
-# from poker import Suit
-# from poker import Rank
-# from poker import Card
 from poker import *
 
 def newHand():
