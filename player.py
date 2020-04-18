@@ -34,6 +34,7 @@ class Player:
                 if answer["options"] == "Join Game":
                         print(self.username ", you have been added to this round")
                         #do game logic
+                        Player.roundMenu(self)
                 else: 
                         #player leaves game
                         self.game.removePlayer(self.username)
@@ -44,12 +45,12 @@ class Player:
                 print(self.hand[0])
                 print(self.hand[1]) 
 
-                questions = [inquirer.List('options', message = query, choices = ['Bet', 'Check', 'Fold'],),]
+                questions = [inquirer.List('options', message = query, choices = ['Bet/Raise', 'Check/Match', 'Fold'],),]
                 answer = inquirer.prompt(questions)
 
-                if answer["options"] == "Bet":
+                if answer["options"] == "Bet/Raise":
                         Player.bet(self)
-                elif answer["options"] == "Check":
+                elif answer["options"] == "Check/Match":
                         Player.check(self)
                 else: 
                         Player.fold(self)
@@ -58,8 +59,13 @@ class Player:
                 query = "How much would you like to bet? bet value needs to be greater than current bet: " + Player.game.bet()
                 question = [inquirer.Text('bet', query)]
                 answer = inquirer.prompt(question)
-
                 #do some game logic here
+                if answer > self.game.getBet():
+                        self.game.setBet(answer)
+                        self.game.setPot(self.game.getPot() + answer)
+                else:
+                        print("Your bet is lower than current Bet!!!!!! up the ante!!")
+                        Player.bet(self)
 
         def check(self):
                 #do some game logic here
@@ -67,7 +73,7 @@ class Player:
 
         def fold(self):
                 #do some game logic here
-                print(" you have folded " + self.username ", see ya next round!")
+                print(self.username  + ", you have folded " + ", see ya next round!")
                 mainMenu()
 
                 

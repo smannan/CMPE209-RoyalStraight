@@ -12,6 +12,7 @@ class Game:
                 self.players = []
                 self.pot = 0
                 self.bet = 0
+                self.comCards = []
                 
 
         def ShuffleDeck(self):
@@ -58,9 +59,29 @@ class Game:
                                 toReturn.append(card)
                                 self.deck.remove(card)
                                 i = i+1
+        def showdown(self):
+                #this is where all of the hands of the players are evaluated. 
         def start(self):
                 #maybe have a while loop where the size is greater than 1? 
-                Game.giveCardsBeg(self)
+                while (len(self.players) > 1)
+                        #this is the Hole Cards
+                        Game.giveCardsBeg(self)
+                        #this is the Flop
+                        flop = Game.getCards(3)
+                        self.comCards = flop
+                        for player in self.players:
+                                player.mainMenu()
+                        #this is the Turn
+                        self.comCards.append(Game.getCards(1))
+                        for player in self.players:
+                                player.mainMenu()
+                        #this is the River
+                        self.comCards.append(Game.getCards(1))
+                        for player in self.players:
+                                player.mainMenu()
+
+                        #this is the end of the game evaluating
+                        Game.showdown(self)
 
 
 
