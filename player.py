@@ -81,6 +81,7 @@ class Player:
                 bet = self.game.getBet()
                 if self.balance >= bet:
                         self.balance = self.balance - bet
+                        #DB call 
                         self.game.setBet(bet)
                         self.game.setPot(self.game.getPot() + bet)
                 else:

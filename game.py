@@ -72,8 +72,10 @@ class Game:
                 while (len(self.players) > 1):
                         #this is the Hole Cards
                         Game.giveCardsBeg(self)
+
                         #this is the Flop
                         flop = Game.getCards(self, 3)
+                        
                         self.comCards = flop
                         self.setBet(0)
                         for player in self.players:
