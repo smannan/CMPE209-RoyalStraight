@@ -1,9 +1,11 @@
-import player
+from player import Player
+import random
 import inquirer
 from poker import *
 
+
 class Game:
-        def __init__(player):
+        def __init__(self):
                 #create deck with all of the cards
                 self.deck = list(Card)
                 #shuffle teh deck
@@ -31,7 +33,7 @@ class Game:
                                 self.players.remove(player)
 
         def getBet(self):
-                print("you have bet")
+                return self.bet
 
         def setBet(self, bet):
                 self.bet = bet
@@ -59,29 +61,53 @@ class Game:
                                 toReturn.append(card)
                                 self.deck.remove(card)
                                 i = i+1
+                return toReturn
         def showdown(self):
                 #this is where all of the hands of the players are evaluated. 
+                for player in self.players:
+                        username = player.getUsername()
+                        self.removePlayer(username)
         def start(self):
-                #maybe have a while loop where the size is greater than 1? 
-                while (len(self.players) > 1)
+                #maybe have a while loop where the size is greater than 1? count(inRound > 1?) 
+                while (len(self.players) > 1):
                         #this is the Hole Cards
                         Game.giveCardsBeg(self)
                         #this is the Flop
-                        flop = Game.getCards(3)
+                        flop = Game.getCards(self, 3)
                         self.comCards = flop
+                        self.setBet(0)
                         for player in self.players:
-                                player.mainMenu()
+                                if player.inRound:
+                                        print("The community cards are: ")
+                                        print(self.comCards)
+                                        print(str(player))
+                                        player.mainMenu()
+                        
                         #this is the Turn
-                        self.comCards.append(Game.getCards(1))
+                        self.comCards.append(Game.getCards(self, 1))
+                        self.setBet(0)
                         for player in self.players:
-                                player.mainMenu()
+                                if player.inRound:
+                                        print("The community cards are: ")
+                                        print(self.comCards)
+                                        print(str(player))
+                                        player.mainMenu()
+                        
                         #this is the River
-                        self.comCards.append(Game.getCards(1))
+                        self.comCards.append(Game.getCards(self, 1))
+                        self.setBet(0)
                         for player in self.players:
-                                player.mainMenu()
+                                if player.inRound:
+                                        print("The community cards are: ")
+                                        print(self.comCards)
+                                        print(str(player))
+                                        player.mainMenu()
 
                         #this is the end of the game evaluating
-                        Game.showdown(self)
+                        self.showdown()
+                        print(len(self.players))
+
+                print("end of game!")
 
 
 
@@ -105,6 +131,7 @@ def main():
         poker.addPlayer(sonia)
         #start the game
         poker.start()
+main()
 
 
                                 

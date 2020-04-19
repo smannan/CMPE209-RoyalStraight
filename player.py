@@ -1,14 +1,20 @@
-import game
+# from game import Game
 import inquirer
 from poker import *
 
 class Player:
-        def __init__(username, balance, game):
+        def __init__(self, username, balance, game):
                 self.username = username
                 self.hand = []
                 self.balance = balance
                 self.game = game
+                self.inRound = True
         
+        def __str__(self):
+                if self.hand == []:
+                        return self.username + " has a balance of " + str(self.balance) + " and empty hand"
+                else:
+                        return self.username + " has a balance of " + str(self.balance) + " AND hand of " + str(self.hand[0]) + " " + str(self.hand[1])
         def getUsername(self):
                 return self.username
 
@@ -26,55 +32,66 @@ class Player:
         def leaveGame(self):
                 self.Game.removePlayer(self.username)
         
-        def mainMenu():
-                query = ""
-                questions = [inquirer.List('options', message = query, choices = ['Leave Game', 'Join Round'],),]
-                answer = inquirer.prompt(questions)
+        def mainMenu(self):
+                if self.inRound:
+                        query = "Hey there " + self.username + " what would you like to do?"
+                        questions = [inquirer.List('options', message = query, choices = ['Leave Game', 'Fold', 'Join Round'],),]
+                        answer = inquirer.prompt(questions)
 
-                if answer["options"] == "Join Game":
-                        print(self.username ", you have been added to this round")
-                        #do game logic
-                        Player.roundMenu(self)
-                else: 
-                        #player leaves game
-                        self.game.removePlayer(self.username)
+                        if answer["options"] == "Join Round":
+                                print(self.username + ", you have been added to this round")
+                                #do game logic
+                                self.roundMenu()
+                        elif answer["options"] == "Fold":
+                                self.fold()
+                        else: 
+                                #player leaves game
+                                self.inRound = False
+                                self.game.removePlayer(self.username)
                         
                 
         def roundMenu(self):
-                gameInfo = "The current pot is: " + str(Player.game.getPot()) + "the current bet is: " + str(Player.game.getBet()) + "your cards are: "
-                print(self.hand[0])
-                print(self.hand[1]) 
-
-                questions = [inquirer.List('options', message = query, choices = ['Bet/Raise', 'Check/Match', 'Fold'],),]
+                gameInfo = "The current pot is: " + str(self.game.getPot()) + " the current bet is: " + str(self.game.getBet()) + " your cards are: " + str(self.hand[0]) + " " + str(self.hand[1]) 
+                questions = [inquirer.List('options', message = gameInfo, choices = ['Bet/Raise', 'Check/Match', 'Fold'],),]
                 answer = inquirer.prompt(questions)
 
                 if answer["options"] == "Bet/Raise":
-                        Player.bet(self)
+                        self.bet()
                 elif answer["options"] == "Check/Match":
-                        Player.check(self)
+                        self.check()
                 else: 
-                        Player.fold(self)
+                        self.fold()
 
         def bet(self):
-                query = "How much would you like to bet? bet value needs to be greater than current bet: " + Player.game.bet()
+                query = "How much would you like to bet? bet value needs to be greater than current bet of " + str(self.game.getBet())
                 question = [inquirer.Text('bet', query)]
                 answer = inquirer.prompt(question)
+                bet = int(answer["bet"])
                 #do some game logic here
-                if answer > self.game.getBet():
-                        self.game.setBet(answer)
-                        self.game.setPot(self.game.getPot() + answer)
+                if bet > self.game.getBet() and self.balance >= bet:
+                        self.balance = self.balance - bet
+                        self.game.setBet(bet)
+                        self.game.setPot(self.game.getPot() + bet)
                 else:
-                        print("Your bet is lower than current Bet!!!!!! up the ante!!")
-                        Player.bet(self)
+                        print("Your bet is lower than current Bet, Up the ante!! Or you have not more funds:(  ")
+                        self.bet(self)
 
         def check(self):
                 #do some game logic here
-                print(" you have checked " + self.username)
+                bet = self.game.getBet()
+                if self.balance >= bet:
+                        self.balance = self.balance - bet
+                        self.game.setBet(bet)
+                        self.game.setPot(self.game.getPot() + bet)
+                else:
+                        print("Sorry! You don't have enough money to check this round, good luck next round")
+                        self.inRound = False
 
         def fold(self):
                 #do some game logic here
+                self.inRound = False
                 print(self.username  + ", you have folded " + ", see ya next round!")
-                mainMenu()
+
 
                 
 
