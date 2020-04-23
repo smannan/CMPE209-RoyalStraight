@@ -9,6 +9,9 @@ class Player:
                 self.balance = balance
                 self.game = game
                 self.inRound = True
+                self.inBet = False
+                self.betBalance = 0
+
         
         def __str__(self):
                 if self.hand == []:
@@ -29,6 +32,25 @@ class Player:
 
         def setBalance(self, balance):
                 self.balance = balance
+
+        def getInRound(self):
+                return self.inRound
+
+        def setInRound(self, inRound):
+                self.inRound = inRound
+        
+        def getInBet(self):
+                return self.inBet
+
+        def setInBet(self, inBet):
+                self.inBet = inBet
+
+        def getBetBalance(self):
+                return self.betBalance
+
+        def setBetBalance(self, Bet):
+                self.betBalance = Bet
+
         def leaveGame(self):
                 self.Game.removePlayer(self.username)
         
@@ -68,10 +90,13 @@ class Player:
                 answer = inquirer.prompt(question)
                 bet = int(answer["bet"])
                 #do some game logic here
-                if bet > self.game.getBet() and self.balance >= bet:
-                        self.balance = self.balance - bet
+                playerDiff = bet-self.getBetBalance()
+                if bet > self.game.getBet() and self.balance >= playerDiff:
+                        self.balance = self.balance - playerDiff
                         self.game.setBet(bet)
-                        self.game.setPot(self.game.getPot() + bet)
+                        self.game.setPot(self.game.getPot() + playerDiff)
+                        self.game.betFalse()
+                        self.setInBet(True)
                 else:
                         print("Your bet is lower than current Bet, Up the ante!! Or you have not more funds:(  ")
                         self.bet(self)
@@ -79,18 +104,20 @@ class Player:
         def check(self):
                 #do some game logic here
                 bet = self.game.getBet()
-                if self.balance >= bet:
-                        self.balance = self.balance - bet
+                playerDiff = bet - self.getBetBalance()
+                if self.balance >= playerDiff:
+                        self.balance = self.balance - playerDiff
+                        self.setBetBalance(bet)
                         #DB call 
-                        self.game.setBet(bet)
-                        self.game.setPot(self.game.getPot() + bet)
+                        self.game.setPot(self.game.getPot() + playerDiff)
+                        self.setInBet(True)
                 else:
                         print("Sorry! You don't have enough money to check this round, good luck next round")
-                        self.inRound = False
+                        self.setInRound(False)
 
         def fold(self):
                 #do some game logic here
-                self.inRound = False
+                self.setInRound(False)
                 print(self.username  + ", you have folded " + ", see ya next round!")
 
 

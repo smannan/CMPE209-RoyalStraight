@@ -43,7 +43,23 @@ class Game:
 
         def setPot(self, pot):
                 self.pot = pot
+        def betFalse(self):
+                for player in self.players:
+                        player.setInBet(False)
 
+        def checkBet(self):
+                for player in self.players:
+                        if not player.getInBet() and player.getInRound():
+                                return False
+                return True
+
+        def resetRound(self):
+                self.comCards.append(Game.getCards(self, 1)[0])
+                self.setBet(0)
+                for player in self.players:
+                        player.setInBet(False)
+                        player.setBetBalance(0)
+                        
         def giveCardsBeg(self):
                 cardsNeeded = 2 * len(self.players)
                 cards = Game.getCards(self, cardsNeeded)
@@ -78,36 +94,39 @@ class Game:
                         
                         self.comCards = flop
                         self.setBet(0)
-                        for player in self.players:
-                                if player.inRound:
-                                        print("The community cards are: ")
-                                        print(self.comCards)
-                                        print(str(player))
-                                        player.mainMenu()
+                        while  not Game.checkBet(self):
+                                for player in self.players:
+                                        if player.inRound and not player.getInBet():
+                                                print("The community cards are: ")
+                                                print(self.comCards)
+                                                print(str(player))
+                                                print("The current pot is: " + str(self.getPot()) + " the current bet is: " + str(self.getBet()))
+                                                player.mainMenu()
                         
                         #this is the Turn
-                        self.comCards.append(Game.getCards(self, 1))
-                        self.setBet(0)
-                        for player in self.players:
-                                if player.inRound:
-                                        print("The community cards are: ")
-                                        print(self.comCards)
-                                        print(str(player))
-                                        player.mainMenu()
+                        self.resetRound()
+                        while  not Game.checkBet(self):
+                                for player in self.players:
+                                        if player.inRound and not player.getInBet():
+                                                print("The community cards are: ")
+                                                print(self.comCards)
+                                                print(str(player))
+                                                print("The current pot is: " + str(self.getPot()) + " the current bet is: " + str(self.getBet()))
+                                                player.mainMenu()
                         
                         #this is the River
-                        self.comCards.append(Game.getCards(self, 1))
-                        self.setBet(0)
-                        for player in self.players:
-                                if player.inRound:
-                                        print("The community cards are: ")
-                                        print(self.comCards)
-                                        print(str(player))
-                                        player.mainMenu()
+                        self.resetRound()
+                        while  not Game.checkBet(self):
+                                for player in self.players:
+                                        if player.inRound and not player.getInBet():
+                                                print("The community cards are: ")
+                                                print(self.comCards)
+                                                print(str(player))
+                                                print("The current pot is: " + str(self.getPot()) + " the current bet is: " + str(self.getBet()))
+                                                player.mainMenu()
 
                         #this is the end of the game evaluating
                         self.showdown()
-                        print(len(self.players))
 
                 print("end of game!")
 
