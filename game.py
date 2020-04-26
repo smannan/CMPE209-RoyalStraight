@@ -2,6 +2,7 @@ from player import Player
 import random
 import inquirer
 from poker import *
+from itertools import combinations
 
 
 class Game:
@@ -9,7 +10,7 @@ class Game:
                 #create deck with all of the cards
                 self.deck = list(Card)
                 #shuffle teh deck
-                random.shuffle(self.deck)
+                # random.shuffle(self.deck)
                 # create a list of players in the game. 
                 self.players = []
                 self.pot = 0
@@ -78,11 +79,149 @@ class Game:
                                 self.deck.remove(card)
                                 i = i+1
                 return toReturn
+        # THESE ARE ALL OF THE METHODS TO CHECK THE VALUE OF THE HANDS FOR PLAYERS.
+        
+        def check_hand(self, hand):
+                if check_straight_flush(hand):
+                        return 9
+                if check__four_of_a_kind(hand):
+                        return 8
+                if check_full_house(hand):
+                        return 7
+                if check_flush(hand):
+                        return 6
+                if check_straight(hand):
+                        return 5
+                if check_three_of_a_kind(hand):
+                        return 4
+                if check_two_pair(hand):
+                        return 3
+                if check_pair(hand):
+                        return 2
+                # this means that it will go High Card
+                return 1
+
+        
+
+        def check_flush(self, hand):
+                suits = [h.suit for h in hand]
+                if len(set(suits)) == 1:
+                        return True
+                else:
+                        return False
+
+        def check_four_of_a_kind(self, hand):
+                cards = [0] * 13
+                idx = 0
+                for card in hand:
+                        if card.is_broadway:
+                                switch={
+                                "A":1,
+                                "T":10,
+                                "J":11,
+                                "Q":12,
+                                "K":13,
+                                "no":14
+                                }
+                                idx = switch.get(str(card.rank), "no") - 1
+                        else:
+                                idx = int(str(card.rank)) - 1
+                        cards[idx] = cards[idx] + 1
+                for count in cards:
+                        if cards[count] == 4:
+                                return True
+                return False
+        def check_three_of_a_kind(self, hand):
+                cards = [0] * 13
+                idx = 0
+                for card in hand:
+                        if card.is_broadway:
+                                switch={
+                                "A":1,
+                                "T":10,
+                                "J":11,
+                                "Q":12,
+                                "K":13,
+                                "no":14
+                                }
+                                idx = switch.get(str(card.rank), "no") - 1
+                        else:
+                                idx = int(str(card.rank)) - 1
+                        cards[idx] = cards[idx] + 1
+                for count in cards:
+                        if cards[count] == 3:
+                                return True
+                return False
+        def check_pair(self, hand):
+                cards = [0] * 13
+                idx = 0
+                for card in hand:
+                        if card.is_broadway:
+                                switch={
+                                "A":1,
+                                "T":10,
+                                "J":11,
+                                "Q":12,
+                                "K":13,
+                                "no":14
+                                }
+                                idx = switch.get(str(card.rank), "no") - 1
+                        else:
+                                idx = int(str(card.rank)) - 1
+                        cards[idx] = cards[idx] + 1
+                for count in cards:
+                        if cards[count] == 2:
+                                return True
+                return False
+
+        def check_two_pair(self, hand):
+                cards = [0] * 13
+                idx = 0
+                for card in hand:
+                        if card.is_broadway:
+                                switch={
+                                "A":1,
+                                "T":10,
+                                "J":11,
+                                "Q":12,
+                                "K":13,
+                                "no":14
+                                }
+                                idx = switch.get(str(card.rank), "no") - 1
+                        else:
+                                idx = int(str(card.rank)) - 1
+                        cards[idx] = cards[idx] + 1
+                pair = 0
+                print(cards)
+                for count in cards:
+                        if count == 2:
+                                pair += 1
+                
+                if pair == 2:
+                        return True
+                else:
+                        return False
+        
+        def finalHand(self):
+                for player in self.players:
+                                        if player.inRound:
+                                                possibleCombos = self.comCards
+                                                possibleCombos.append(player.hand[0])
+                                                possibleCombos.append(player.hand[1])
+                                                combo = combinations(possibleCombos, 5)
+                                                for cards in combo:
+                                                        print("A hand of cards for " + player.username + " is: ")
+                                                        print(cards)
+
+
+
         def showdown(self):
                 #this is where all of the hands of the players are evaluated. 
+                Game.finalHand(self)
                 for player in self.players:
                         username = player.getUsername()
                         self.removePlayer(username)
+
         def start(self):
                 #maybe have a while loop where the size is greater than 1? count(inRound > 1?) 
                 while (len(self.players) > 1):
@@ -105,6 +244,13 @@ class Game:
                         
                         #this is the Turn
                         self.resetRound()
+                        #check if everyone folds
+                        playerCount = len(self.players)
+                        foldCount = 0
+                        for player in self.players:
+                                if not player.inRound:
+                                        foldCount = foldCount +1
+
                         while  not Game.checkBet(self):
                                 for player in self.players:
                                         if player.inRound and not player.getInBet():
@@ -150,8 +296,22 @@ def main():
         poker.addPlayer(wayne)
         poker.addPlayer(junlan)
         poker.addPlayer(sonia)
+        print(poker.deck)
+        four = []
+        four.append(poker.deck[0])
+        four.append(poker.deck[4])
+        four.append(poker.deck[8])
+        four.append(poker.deck[12])
+        four.append(poker.deck[16])
+        print("this is hand")
+        print(four)
+        if poker.check_flush(four):
+                print("yay")
+        else:
+                print("you are failure")
         #start the game
-        poker.start()
+        # poker.start()
+        # test the methods
 main()
 
 

@@ -11,6 +11,7 @@ class Player:
                 self.inRound = True
                 self.inBet = False
                 self.betBalance = 0
+                self.finalHand = 0
 
         
         def __str__(self):
