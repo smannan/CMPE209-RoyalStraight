@@ -9,8 +9,8 @@ class Game:
         def __init__(self):
                 #create deck with all of the cards
                 self.deck = list(Card)
-                #shuffle teh deck
-                # random.shuffle(self.deck)
+                #shuffle the deck
+                random.shuffle(self.deck)
                 # create a list of players in the game. 
                 self.players = []
                 self.pot = 0
@@ -82,26 +82,71 @@ class Game:
         # THESE ARE ALL OF THE METHODS TO CHECK THE VALUE OF THE HANDS FOR PLAYERS.
         
         def check_hand(self, hand):
-                if check_straight_flush(hand):
+                if Game.check_straight_flush(self, hand):
                         return 9
-                if check__four_of_a_kind(hand):
+                if Game.check_four_of_a_kind(self, hand):
                         return 8
-                if check_full_house(hand):
+                if Game.check_full_house(self, hand):
                         return 7
-                if check_flush(hand):
+                if Game.check_flush(self, hand):
                         return 6
-                if check_straight(hand):
+                if Game.check_straight(self, hand):
                         return 5
-                if check_three_of_a_kind(hand):
+                if Game.check_three_of_a_kind(self, hand):
                         return 4
-                if check_two_pair(hand):
+                if Game.check_two_pair(self, hand):
                         return 3
-                if check_pair(hand):
+                if Game.check_pair(self, hand):
                         return 2
                 # this means that it will go High Card
                 return 1
 
-        
+        def check_straight(self, hand):
+                cards = [0] * 13
+                idx = 0
+                for card in hand:
+                        if card.is_broadway:
+                                switch={
+                                "A":1,
+                                "T":10,
+                                "J":11,
+                                "Q":12,
+                                "K":13,
+                                "no":14
+                                }
+                                idx = switch.get(str(card.rank), "no") - 1
+                        else:
+                                idx = int(str(card.rank)) - 1
+                        cards[idx] = cards[idx] + 1
+                straightCount = 0
+                for i in range(len(cards)):
+                        if (cards[i] == len(cards) - 1) and cards[0] == 1 and straightCount == 4:
+                                return True
+
+                        if cards[i] == 1  and straightCount != 5:
+                                straightCount = straightCount + 1
+                        else:
+                                if straightCount > 0 and straightCount != 5:
+                                        straightCount -= 1
+                                        
+                if straightCount == 5:
+                         return True
+                else: 
+                        return False
+
+                
+
+        def check_straight_flush(self, hand):
+                if Game.check_flush(self, hand) and Game.check_straight(self, hand):
+                        return True
+                else:
+                        return False
+        def check_full_house(self, hand):
+                suits = [h.suit for h in hand]
+                if len(set(suits)) == 2:
+                        return True
+                else:
+                        return False
 
         def check_flush(self, hand):
                 suits = [h.suit for h in hand]
@@ -192,7 +237,6 @@ class Game:
                                 idx = int(str(card.rank)) - 1
                         cards[idx] = cards[idx] + 1
                 pair = 0
-                print(cards)
                 for count in cards:
                         if count == 2:
                                 pair += 1
@@ -204,14 +248,27 @@ class Game:
         
         def finalHand(self):
                 for player in self.players:
-                                        if player.inRound:
-                                                possibleCombos = self.comCards
-                                                possibleCombos.append(player.hand[0])
-                                                possibleCombos.append(player.hand[1])
-                                                combo = combinations(possibleCombos, 5)
-                                                for cards in combo:
-                                                        print("A hand of cards for " + player.username + " is: ")
-                                                        print(cards)
+                        if player.inRound:
+                                possibleCombos = self.comCards
+                                possibleCombos.append(player.hand[0])
+                                possibleCombos.append(player.hand[1])
+                                # use thiis to get rid of duplicates for performance imporments
+                                # combo = list(set(list(combinations(possibleCombos, 5)))) 
+                                # Use this for know for Proof Of Concept
+                                combo = list(combinations(possibleCombos, 5))
+                                bestHand = combo[0]
+                                for hand in combo:
+                                        if Game.check_hand(self, hand) > Game.check_hand(self, bestHand):
+                                                bestHand = hand
+                                        elif Game.check_hand(self, hand) == Game.check_hand(self, bestHand):
+                                                # need to implement this by sorting cards, and seeing which one is the greatest. for now just blindly take the next 
+                                                bestHand = hand
+                                player.setHand(bestHand)
+                                print("for the player" + player.getUsername() + " the best hand is: " )
+                                print(player.hand)
+                                                
+
+                                                        
 
 
 
@@ -296,22 +353,22 @@ def main():
         poker.addPlayer(wayne)
         poker.addPlayer(junlan)
         poker.addPlayer(sonia)
-        print(poker.deck)
-        four = []
-        four.append(poker.deck[0])
-        four.append(poker.deck[4])
-        four.append(poker.deck[8])
-        four.append(poker.deck[12])
-        four.append(poker.deck[16])
-        print("this is hand")
-        print(four)
-        if poker.check_flush(four):
-                print("yay")
-        else:
-                print("you are failure")
-        #start the game
-        # poker.start()
+        # #start the game
+        poker.start()
         # test the methods
+        # # print(poker.deck)
+        # four = []
+        # four.append(poker.deck[1])
+        # four.append(poker.deck[5])
+        # four.append(poker.deck[9])
+        # four.append(poker.deck[13])
+        # four.append(poker.deck[17])
+        # print("this is hand")
+        # print(four)
+        # if poker.check_straight(four):
+        #         print("yay")
+        # else:
+        #         print("you are failure")
 main()
 
 

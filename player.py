@@ -18,7 +18,7 @@ class Player:
                 if self.hand == []:
                         return self.username + " has a balance of " + str(self.balance) + " and empty hand"
                 else:
-                        return self.username + " has a balance of " + str(self.balance) + " AND hand of " + str(self.hand[0]) + " " + str(self.hand[1])
+                        return self.username + " has a balance of " + str(self.balance) + " AND hand of " + str(self.hand[0]) + " " + str(self.hand[1]) +" AND a betBalance of " + str(self.getBetBalance()) 
         def getUsername(self):
                 return self.username
 
@@ -95,6 +95,7 @@ class Player:
                 if bet > self.game.getBet() and self.balance >= playerDiff:
                         self.balance = self.balance - playerDiff
                         self.game.setBet(bet)
+                        self.setBetBalance(bet)
                         self.game.setPot(self.game.getPot() + playerDiff)
                         self.game.betFalse()
                         self.setInBet(True)
