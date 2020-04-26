@@ -22,7 +22,7 @@ class Game:
                 random.shuffle(self.deck)
         
         def getNewDeck(self):
-                self.deck = list[Card]
+                self.deck = list(Card)
                 random.shuffle(self.deck)
         
         def addPlayer(self, player):
@@ -263,8 +263,9 @@ class Game:
                                         elif Game.check_hand(self, hand) == Game.check_hand(self, bestHand):
                                                 # need to implement this by sorting cards, and seeing which one is the greatest. for now just blindly take the next 
                                                 bestHand = hand
-                                player.setHand(bestHand)
-                                print("for the player" + player.getUsername() + " the best hand is: " )
+                                
+                                player.setHand(list(bestHand))
+                                print("for the player " + player.getUsername() + " the best hand is: " )
                                 print(player.hand)
                                                 
 
@@ -275,9 +276,18 @@ class Game:
         def showdown(self):
                 #this is where all of the hands of the players are evaluated. 
                 Game.finalHand(self)
+                Game.getNewDeck(self)
+                for player in self.players:
+                        player.hand = []
+
                 for player in self.players:
                         username = player.getUsername()
                         self.removePlayer(username)
+                
+                print("the numbers of playres is: ")
+                print(self.players)
+                
+
 
         def start(self):
                 #maybe have a while loop where the size is greater than 1? count(inRound > 1?) 
