@@ -80,7 +80,6 @@ class Game:
                                 i = i+1
                 return toReturn
         # THESE ARE ALL OF THE METHODS TO CHECK THE VALUE OF THE HANDS FOR PLAYERS.
-        
         def check_hand(self, hand):
                 if Game.check_straight_flush(self, hand):
                         return 9
@@ -142,6 +141,7 @@ class Game:
                 else:
                         return False
         def check_full_house(self, hand):
+                #3 and 2 Rank
                 suits = [h.suit for h in hand]
                 if len(set(suits)) == 2:
                         return True
@@ -280,9 +280,11 @@ class Game:
                 for player in self.players:
                         player.hand = []
 
-                for player in self.players:
-                        username = player.getUsername()
-                        self.removePlayer(username)
+                # for player in self.players:
+                #         username = player.getUsername()
+                #         self.removePlayer(username)
+
+                
                 
                 print("the numbers of playres is: ")
                 print(self.players)
