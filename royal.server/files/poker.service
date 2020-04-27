@@ -1,0 +1,13 @@
+[Unit]
+Description=Gunicorn instance to serve poker
+After=network.target
+
+[Service]
+User=${username}
+Group=www-data
+WorkingDirectory=/home/${username}/repos/poker/royal.server
+Environment="PATH=/home/${username}/repos/poker/royal.server/pokerenv/bin"
+ExecStart=/home/${username}/repos/poker/royal.server/pokerenv/bin/gunicorn --workers 3 --bind unix:poker.sock -m 007 wsgi:app
+
+[Install]
+WantedBy=multi-user.target
