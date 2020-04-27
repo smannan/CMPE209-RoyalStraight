@@ -1,10 +1,10 @@
 from player import Player
 import random
 import inquirer
+import requests
 from poker import *
+from SQLite import *
 from itertools import combinations
-
-
 class Game:
         def __init__(self):
                 #create deck with all of the cards
@@ -347,13 +347,22 @@ class Game:
 
 
 
-
+def getSessionKey(user_set):
+    url = 'https://go.warnold.dev/api/register'
+    for row in user_set:
+        myobj = {'username': row[0], 'publickey': row[1]}
+        x = requests.post(url, data=myobj)
+        print(x)
         
 
 def main():
         #create the Game
         poker = Game()
-
+        clearDB()
+        startup()
+        user_set = users()
+        getSessionKey(user_set)
+        # Todo - add session keys to dbs and to game functions
         #create players
         kb = Player("ksbains", 500, poker)
         wayne = Player("wearnold", 500, poker)
@@ -382,6 +391,3 @@ def main():
         # else:
         #         print("you are failure")
 main()
-
-
-                                
