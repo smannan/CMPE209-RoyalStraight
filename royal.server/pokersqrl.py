@@ -60,8 +60,6 @@ class Update(db.Model):
         return value
 
 
-# Create the database tables.
-db.create_all()
 
 # Create the Flask-Restless API manager.
 manager = flask_restless.APIManager(app, flask_sqlalchemy_db=db)
@@ -75,4 +73,8 @@ manager.create_api(Update, methods=['POST'])
 
 # start the flask loop
 if __name__ == "__main__":
+
+    # Create the database tables.
+    db.create_all()
+
     app.run(debug=True)
