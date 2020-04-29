@@ -1,7 +1,9 @@
 from Crypto.PublicKey import RSA
+
 from Crypto.Random import get_random_bytes
 from Crypto.Cipher import PKCS1_OAEP
 import binascii
+
 
 
 def generateKeys():
@@ -9,7 +11,6 @@ def generateKeys():
     prikey = RSA.generate(2048)
     pubkey = prikey.publickey()
     return prikey.exportKey(), pubkey.exportKey()
-
 
 def generateSessionKey():
     return get_random_bytes(16)
@@ -21,6 +22,7 @@ def rsa_encrypt(session_key, pubkey):
     cipher_rsa = PKCS1_OAEP.new(pubkey)
     enc_session_key = cipher_rsa.encrypt(session_key)
     return binary_to_ASCII(enc_session_key)
+
 
 
 def rsa_decrypt(enc_session_key, prikey):
@@ -50,3 +52,6 @@ def binary_to_ASCII(v):
 
 # print("Original session_key: ", session_key,
 #       "\n compare Decrypt session key: ", ASCII_to_binary(dec_session_key))
+
+
+

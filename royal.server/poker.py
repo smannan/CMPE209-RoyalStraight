@@ -26,18 +26,6 @@ player = api.model('Player', {
     "balance" : fields.String(required=True, description="Player's Balance")
 })
 
-# Just a starter to play with how to define game state
-game_state = {}
-game_state['whose_turn'] = fields.String()
-game_state['card_pool'] = fields.List()
-game_state['current_bet'] = fields.String()
-
-game = api.model('Game', {
-    "id": fields.String(require=True, description="Unique Game ID, or Table Number"),
-    "playerList": fields.List(description="List of player IDs at the table"),
-    "gameState": fields.Nested(game_state)
-})
-
 # Defines the data object
 # TODO: Calls to database would happen here, instead of having a "users" object
 class UserDAO(object):
@@ -84,47 +72,11 @@ DAO.create({
     'pubkey':'1234567890abcdef1234567892'
 })
 
-# TODO: Validate user's public key before "sitting" at the table
-class PlayerDAO(object):
-    def __init__(self):
-        pass
-
-    def get(self, id):
-        for user in self.users:
-            if user['id'] == id:
-                return user
-        api.abort(404, "User {} doesn't exist".format(id))
 
 class GameDAO(object):
     
     def __init__(self):
         self.games=[]
-    
-
-    def get(self, id):
-        for game in self.games:
-            if game['id'] == id:
-                return game
-        api.abort(404, "User {} doesn't exist".format(id))
-
-    def create(self, data):
-        if data['id'] not in self.games:
-            game = {}
-            game['id']=data['id']
-            game['pubkey']=data['pubkey']
-            self.games.append(game)
-            return game
-        else:
-            api.abort(401, "User {} already exists.".format(data['id']))
-
-    def update(self, id, data):
-        game = self.get(id)
-        game.update(data)
-        return game
-
-    def delete(self, id):
-        game = self.get(id)
-        self.games.remove(game)
 
 # /api/users/
 @ns.route('/users/')
