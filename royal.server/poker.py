@@ -81,7 +81,7 @@ class GameDAO(object):
 # /api/users/
 @ns.route('/users/')
 class UserList(Resource):
-    '''Shows a list of all users, and lets you POST to add new tasks'''
+    '''Shows a list of all users, and lets you POST to add new users'''
     @ns.doc('list_users')
     @ns.marshal_list_with(user)
     def get(self):
@@ -110,16 +110,15 @@ class User(Resource):
     @ns.doc('delete_user')
     @ns.response(204, 'User deleted')
     def delete(self, id):
-        '''Delete a task given its identifier'''
+        '''Delete a user given its identifier'''
         DAO.delete(id)
         return '', 204
 
     @ns.expect(user)
     @ns.marshal_with(user)
     def put(self, id):
-        '''Update a task given its identifier'''
+        '''Update a user given its identifier'''
         return DAO.update(id, api.payload)
 
 if __name__ == '__main__':
     app.run(debug=True)
-
