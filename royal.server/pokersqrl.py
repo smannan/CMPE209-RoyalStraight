@@ -3,6 +3,7 @@ import flask
 import flask_sqlalchemy
 import flask_restless
 from sqlalchemy.orm import validates
+from encryption import *
 
 # Create the Flask application and the Flask-SQLAlchemy object.
 app = flask.Flask(__name__)
@@ -15,8 +16,9 @@ def encrypt_token(context):
     token = context.get_current_parameters()['token']
     pubkey = context.get_current_parameters()['pubkey']
     # TODO: pseudocode, should take the RSA pubkey and encrypt the token.
-    # return rsa_encrypt(token, pubkey)
-    return token+pubkey
+    return rsa_encrypt(token, pubkey)
+    # return token+pubkey
+
 
 gs_default = {
     "bet":0,
