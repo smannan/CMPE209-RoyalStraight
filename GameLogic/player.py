@@ -113,12 +113,12 @@ class Player:
                 
         def roundMenu(self):
                 gameInfo = "The current pot is: " + str(self.game.getPot()) + " the current bet is: " + str(self.game.getBet()) + " your cards are: " + str(self.getHand()[0]) + " " + str(self.getHand()[1]) 
-                questions = [inquirer.List('options', message = gameInfo, choices = ['Bet/Raise', 'Check/Match', 'Fold'],),]
+                questions = [inquirer.List('options', message = gameInfo, choices = ['Bet/Raise', 'Check/Call', 'Fold'],),]
                 answer = inquirer.prompt(questions)
 
                 if answer["options"] == "Bet/Raise":
                         self.bet()
-                elif answer["options"] == "Check/Match":
+                elif answer["options"] == "Check/Call":
                         self.check()
                 else: 
                         self.fold()

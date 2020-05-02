@@ -1,4 +1,4 @@
-from game import Game
+from Documents.SJSU.Spring2020.CMPE209.CMPE209-RoyalStraight.GameLogic import Game
 
 
 def testMain():
