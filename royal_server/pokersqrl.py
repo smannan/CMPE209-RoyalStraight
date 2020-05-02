@@ -1,9 +1,20 @@
-import secrets
+import sys
+import binascii
+import random
 import flask
 import flask_sqlalchemy
 import flask_restless
 from sqlalchemy.orm import validates
-from encryption import *
+from poker import Card
+
+sys.path.append("..")
+from encryption import (
+    generateKeys,
+    generateSessionKey,
+    rsa_encrypt,
+    )
+from encryption import ASCII_to_binary as a2b
+from encryption import binary_to_ASCII as b2a
 
 # Create the Flask application and the Flask-SQLAlchemy object.
 app = flask.Flask(__name__)
@@ -13,10 +24,16 @@ db = flask_sqlalchemy.SQLAlchemy(app)
 
 
 def encrypt_token(context):
-    token = context.get_current_parameters()['token']
-    pubkey = context.get_current_parameters()['pubkey']
-    # TODO: pseudocode, should take the RSA pubkey and encrypt the token.
-    return rsa_encrypt(token, pubkey)
+    b64_token = context.get_current_parameters()['token']
+    b64_pubkey = context.get_current_parameters()['pubkey']
+
+    # Convert to binary for the rsa_encrypt function
+    bin_token = a2b(b64_token)
+    bin_pubkey = a2b(b64_pubkey)
+    b64_enc_key = rsa_encrypt(bin_token, bin_pubkey)
+
+    # Convert back to utf8 for storage
+    return b64_enc_key
     # return token+pubkey
 
 
@@ -27,16 +44,31 @@ gs_default = {
 
 class User(db.Model):
     __tablename__ = 'user'
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.Unicode, unique=True)
-    pubkey = db.Column(db.Unicode, unique=True)
-    token = db.Column(db.Unicode, default=secrets.token_hex(16))
+    username = db.Column(db.Unicode, primary_key=True)
+    pubkey = db.Column(db.String, unique=True)
+    token = db.Column(db.Unicode, default=generateSessionKey(output='base64'))
     enc_token = db.Column(db.Unicode, default=encrypt_token)
 
 class Game(db.Model):
     __tablename__ = 'game'
     id = db.Column(db.Integer, primary_key=True)
     data = db.Column(db.JSON, default=gs_default)
+
+    def __init__(self):
+        #create deck with all of the cards
+        self.deck = list(Card)
+        #shuffle the deck
+        random.shuffle(self.deck)
+        # create a list of players in the game. 
+        self.players = []
+        self.pot = 0
+        self.bet = 0
+        self.comCards = []
+    
+    def addPlayer(self, player):
+        self.players.append(player)
+        db.session.add(player1)
+        db.session.commit() 
 
 class Player(db.Model):
     __tablename__ = 'player'
@@ -77,6 +109,7 @@ manager = flask_restless.APIManager(app, flask_sqlalchemy_db=db)
 
 # Create API endpoints, which will be available at /api/<tablename>
 manager.create_api(User, methods=['GET', 'POST'], exclude_columns=['token'])
+manager.create_api(User, methods=['GET', 'POST'], collection_name='useradmin')
 # TODO: Remove POST, API doesn't need to expose game post, this is just for testing.
 manager.create_api(Game, methods=['GET', 'POST'])
 manager.create_api(Update, methods=['POST'])
@@ -96,23 +129,31 @@ if __name__ == "__main__":
 
     # 3. Add test data to the db's.
 
-    # Add a user
+    # 3a. Add a user
+
+    prikey, pubkey = generateKeys()
+    b64_pubkey = b2a(pubkey)
+
     user_dict = {
-        'username':'warnold2',
-        'pubkey':'1234568901'
+        'username':'warnold',
+        'pubkey':b64_pubkey
     }
+
     wayne = User(**user_dict)
     db.session.add(wayne)
     db.session.commit()
     # print(wayne.id)
     
-    # Create a game
+    # 3b. Create a game
     game = Game()
     db.session.add(game)
     db.session.commit()
     # print(game.id)
 
-    # Add a player to the game
+    # Just an example of a query
+    our_game = db.session.query(Game).filter_by(id='1').first()
+
+    # 3c. Add a player to the game
     player1 = Player(username=wayne.username, gameid=game.id)
     db.session.add(player1)
     db.session.commit()
@@ -123,4 +164,4 @@ if __name__ == "__main__":
     # TODO: player makes an update
 
 
-    app.run(debug=True)
+    # app.run(debug=True)

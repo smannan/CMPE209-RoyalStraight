@@ -1,5 +1,11 @@
 # from game import Game
+
 import inquirer
+# Needed for Windows support :(
+try:
+        import PyInquirer
+except:
+        pass
 from poker import *
 
 class Player:
@@ -64,9 +70,17 @@ class Player:
         def mainMenu(self):
                 if self.inRound:
                         query = "Hey there " + self.username + " what would you like to do?"
-                        questions = [inquirer.List('options', message = query, choices = ['Leave Game', 'Fold', 'Join Round'],),]
-                        answer = inquirer.prompt(questions)
-
+                        try:
+                                questions = [inquirer.List('options', message = query, choices = ['Leave Game', 'Fold', 'Join Round'],),]
+                                answer = inquirer.prompt(questions)
+                        except:
+                                questions = {
+                                        'type':'list',
+                                        'choices' : ['Leave Game', 'Fold', 'Join Round'],
+                                        'message':query,
+                                        'name':'options'
+                                }
+                                answer = PyInquirer.prompt(questions)
                         if answer["options"] == "Join Round":
                                 print(self.username + ", you have been added to this round")
                                 #do game logic
@@ -81,9 +95,17 @@ class Player:
                 
         def roundMenu(self):
                 gameInfo = "The current pot is: " + str(self.game.getPot()) + " the current bet is: " + str(self.game.getBet()) + " your cards are: " + str(self.hand[0]) + " " + str(self.hand[1]) 
-                questions = [inquirer.List('options', message = gameInfo, choices = ['Bet/Raise', 'Check/Match', 'Fold'],),]
-                answer = inquirer.prompt(questions)
-
+                try:
+                        questions = [inquirer.List('options', message = gameInfo, choices = ['Bet/Raise', 'Check/Match', 'Fold'],),]
+                        answer = inquirer.prompt(questions)
+                except:
+                        questions = {
+                                'type':'list',
+                                'choices' : ['Bet/Raise','Check/Match', 'Fold'],
+                                'message':gameInfo,
+                                'name':'options'
+                        }
+                        answer = PyInquirer.prompt(questions)
                 if answer["options"] == "Bet/Raise":
                         self.bet()
                 elif answer["options"] == "Check/Match":
@@ -93,8 +115,16 @@ class Player:
 
         def bet(self):
                 query = "How much would you like to bet? bet value needs to be greater than current bet of " + str(self.game.getBet())
-                question = [inquirer.Text('bet', query)]
-                answer = inquirer.prompt(question)
+                try:
+                        question = [inquirer.Text('bet', query)]
+                        answer = inquirer.prompt(question)
+                except:
+                        questions = {
+                                'type': 'input',
+                                'name': 'bet',
+                                'message': query,
+                        }
+                        answer = prompt(question)
                 bet = int(answer["bet"])
                 #do some game logic here
                 playerDiff = bet-self.getBetBalance()

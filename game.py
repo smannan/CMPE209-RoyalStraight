@@ -1,4 +1,5 @@
 from player import Player
+from royal_server.pokersqrl import Update
 import random
 import inquirer
 import requests
