@@ -56,3 +56,6 @@ if __name__ == "__main__":
     print("Original session_key: ", session_key,
           "\n compare Decrypt session key: ", ASCII_to_binary(dec_session_key))
 
+    # Added this for a test
+    print('Encoded public key:')
+    print(binary_to_ASCII(pubkey))
