@@ -44,8 +44,7 @@ gs_default = {
 
 class User(db.Model):
     __tablename__ = 'user'
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.Unicode, unique=True)
+    username = db.Column(db.Unicode, primary_key=True)
     pubkey = db.Column(db.String, unique=True)
     token = db.Column(db.Unicode, default=generateSessionKey(output='base64'))
     enc_token = db.Column(db.Unicode, default=encrypt_token)
@@ -110,6 +109,7 @@ manager = flask_restless.APIManager(app, flask_sqlalchemy_db=db)
 
 # Create API endpoints, which will be available at /api/<tablename>
 manager.create_api(User, methods=['GET', 'POST'], exclude_columns=['token'])
+manager.create_api(User, methods=['GET', 'POST'], collection_name='useradmin')
 # TODO: Remove POST, API doesn't need to expose game post, this is just for testing.
 manager.create_api(Game, methods=['GET', 'POST'])
 manager.create_api(Update, methods=['POST'])
@@ -150,6 +150,9 @@ if __name__ == "__main__":
     db.session.commit()
     # print(game.id)
 
+    # Just an example of a query
+    our_game = db.session.query(Game).filter_by(id='1').first()
+
     # 3c. Add a player to the game
     player1 = Player(username=wayne.username, gameid=game.id)
     db.session.add(player1)
@@ -161,4 +164,4 @@ if __name__ == "__main__":
     # TODO: player makes an update
 
 
-    app.run(debug=True)
+    # app.run(debug=True)
