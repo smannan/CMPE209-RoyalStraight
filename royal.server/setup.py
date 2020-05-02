@@ -1,1 +1,0 @@
-# Placeholder if I want to create a proper setup file for the server later

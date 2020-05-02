@@ -9,16 +9,12 @@ class Player:
                 self.balance = balance
                 self.game = game
                 self.inRound = True
-                self.inBet = False
-                self.betBalance = 0
-                self.finalHand = 0
-
         
         def __str__(self):
                 if self.hand == []:
                         return self.username + " has a balance of " + str(self.balance) + " and empty hand"
                 else:
-                        return self.username + " has a balance of " + str(self.balance) + " AND hand of " + str(self.hand[0]) + " " + str(self.hand[1]) +" AND a betBalance of " + str(self.getBetBalance()) 
+                        return self.username + " has a balance of " + str(self.balance) + " AND hand of " + str(self.hand[0]) + " " + str(self.hand[1])
         def getUsername(self):
                 return self.username
 
@@ -33,25 +29,6 @@ class Player:
 
         def setBalance(self, balance):
                 self.balance = balance
-
-        def getInRound(self):
-                return self.inRound
-
-        def setInRound(self, inRound):
-                self.inRound = inRound
-        
-        def getInBet(self):
-                return self.inBet
-
-        def setInBet(self, inBet):
-                self.inBet = inBet
-
-        def getBetBalance(self):
-                return self.betBalance
-
-        def setBetBalance(self, Bet):
-                self.betBalance = Bet
-
         def leaveGame(self):
                 self.Game.removePlayer(self.username)
         
@@ -91,14 +68,10 @@ class Player:
                 answer = inquirer.prompt(question)
                 bet = int(answer["bet"])
                 #do some game logic here
-                playerDiff = bet-self.getBetBalance()
-                if bet > self.game.getBet() and self.balance >= playerDiff:
-                        self.balance = self.balance - playerDiff
+                if bet > self.game.getBet() and self.balance >= bet:
+                        self.balance = self.balance - bet
                         self.game.setBet(bet)
-                        self.setBetBalance(bet)
-                        self.game.setPot(self.game.getPot() + playerDiff)
-                        self.game.betFalse()
-                        self.setInBet(True)
+                        self.game.setPot(self.game.getPot() + bet)
                 else:
                         print("Your bet is lower than current Bet, Up the ante!! Or you have not more funds:(  ")
                         self.bet(self)
@@ -106,20 +79,18 @@ class Player:
         def check(self):
                 #do some game logic here
                 bet = self.game.getBet()
-                playerDiff = bet - self.getBetBalance()
-                if self.balance >= playerDiff:
-                        self.balance = self.balance - playerDiff
-                        self.setBetBalance(bet)
+                if self.balance >= bet:
+                        self.balance = self.balance - bet
                         #DB call 
-                        self.game.setPot(self.game.getPot() + playerDiff)
-                        self.setInBet(True)
+                        self.game.setBet(bet)
+                        self.game.setPot(self.game.getPot() + bet)
                 else:
                         print("Sorry! You don't have enough money to check this round, good luck next round")
-                        self.setInRound(False)
+                        self.inRound = False
 
         def fold(self):
                 #do some game logic here
-                self.setInRound(False)
+                self.inRound = False
                 print(self.username  + ", you have folded " + ", see ya next round!")
 
 
