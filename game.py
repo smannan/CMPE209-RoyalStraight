@@ -4,7 +4,7 @@ import inquirer
 import requests
 from poker import *
 from SQLite import *
-
+from encryption import *
 import os
 from itertools import combinations
 
@@ -438,6 +438,7 @@ def main():
     # create the Game
     poker = Game()
 
+    # get public keys from file
     smannan_public_key = RSA.importKey(
         open('pub_pri_keys/smannan_public.pem', 'r').read()).exportKey('PEM')
     junlan66_public_key = RSA.importKey(
@@ -448,8 +449,36 @@ def main():
         open('pub_pri_keys/ksbains_public.pem', 'r').read()).exportKey('PEM')
     print(junlan66_public_key)
 
-    ksbains_sessionkey = getSessionKey('ksbains', binascii.b2a_base64(
+    # get encrypted session keys from server
+    smannan_enc_sessionkey = getSessionKey('smannan', binascii.b2a_base64(
+        smannan_public_key).decode('utf8'))
+    junlan66_enc_sessionkey = getSessionKey('junlan6', binascii.b2a_base64(
+        junlan66_public_key).decode('utf8'))
+    wearnold_enc_sessionkey = getSessionKey('wearnolds', binascii.b2a_base64(
+        wearnold_public_key).decode('utf8'))
+    ksbains_enc_sessionkey = getSessionKey('ksbains', binascii.b2a_base64(
         ksbains_public_key).decode('utf8'))
+
+    # get private keys from files
+    smannan_pri_key = RSA.importKey(
+        open('pub_pri_keys/smannan_public.pem', 'r').read()).exportKey('PEM')
+    junlan66_pri_key = RSA.importKey(
+        open('pub_pri_keys/junlan66_public.pem', 'r').read()).exportKey('PEM')
+    wearnold_pri_key = RSA.importKey(
+        open('pub_pri_keys/wearnold_public.pem', 'r').read()).exportKey('PEM')
+    ksbains_pri_key = RSA.importKey(
+        open('pub_pri_keys/ksbains_public.pem', 'r').read()).exportKey('PEM')
+    print(junlan66_public_key)
+
+    # decrypt session keys with private key
+    smannan_dec_sessionkey = rsa_decrypt(
+        ASCII_to_binary(smannan_enc_sessionkey), smannan_pri_key)
+    junlan66_dec_sessionkey = rsa_decrypt(
+        ASCII_to_binary(junlan66_enc_sessionkey), junlan66_pri_key)
+    wearnold_dec_sessionkey = rsa_decrypt(
+        ASCII_to_binary(wearnold_enc_sessionkey), wearnold_pri_key)
+    ksbains_dec_sessionkey = rsa_decrypt(
+        ASCII_to_binary(ksbains_enc_sessionkey), ksbains_pri_key)
 
     # Todo - add session keys to dbs and to game functions
     # create players
