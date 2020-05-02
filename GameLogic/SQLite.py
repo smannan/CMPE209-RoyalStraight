@@ -27,8 +27,6 @@ def create_tables():
     
 
 # Dynamically INSERT into tables
-
-
 def insert_user(userName, pubKey):
     sql_insert_query = "INSERT INTO users VALUES(?,?)"
     c.execute(sql_insert_query, (userName, pubKey))

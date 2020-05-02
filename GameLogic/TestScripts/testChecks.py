@@ -1,5 +1,4 @@
-from Documents.SJSU.Spring2020.CMPE209.CMPE209-RoyalStraight.GameLogic import Game
-
+from game import Game
 
 def testMain():
     pokerGame = Game()

@@ -21,6 +21,8 @@ class Game:
 		self.pot = 0
 		self.bet = 0
 		self.comCards = []
+
+
 	
 	def addPlayer(self, player):
 		self.players.append(player)
@@ -36,6 +38,12 @@ class Game:
 				#!!!!!!!!!!!!!!SQL HERE!!!!!!!!!!!!!!!!!!!!!!
 				#GameDB.remove_player(player.getUsername(PK))
 				# Have to do some logic here to make sure that the player column is now NULL
+	def getPlayers():
+		return self.getPlayers
+		#!!!!!!!!!!!!!!SQL HERE!!!!!!!!!!!!!!!!!!!!!!
+		#playersDB = GameDB.get_players()
+		#return GameDB.string_to_players(playersDB)
+
 
 
 	
@@ -231,6 +239,7 @@ class Game:
 				fullHouse = fullHouse + 1
 			if count == 3:
 				fullHouse = fullHouse + 1
+		
 		if fullHouse == 2:
 			return True
 		else:
@@ -405,8 +414,9 @@ class Game:
 		self.comCards = []
 		self.comCards = flop
 		self.setBet(0)
+		players = self.getPlayers()
 		while  not Game.checkBet(self):
-			for player in self.players:
+			for player in players:
 				if player.inRound and not player.getInBet():
 					print("The community cards are: ")
 					print(self.comCards)
@@ -420,7 +430,8 @@ class Game:
 		playerCount = len(self.players)
 		foldCount = 0
 		winner = self.players[0]
-		for player in self.players:
+		players = self.getPlayers()
+		for player in players:
 			if not player.inRound:
 				foldCount = foldCount +1
 			else:
@@ -432,7 +443,7 @@ class Game:
 			# break
 
 		while  not Game.checkBet(self):
-			for player in self.players:
+			for player in players:
 				if player.inRound and not player.getInBet():
 					print("The community cards are: ")
 					print(self.comCards)
@@ -446,7 +457,8 @@ class Game:
 		playerCount = len(self.players)
 		foldCount = 0
 		winner = self.players[0]
-		for player in self.players:
+		players = self.getPlayers()
+		for player in players:
 			if not player.inRound:
 				foldCount = foldCount +1
 			else:
@@ -457,7 +469,7 @@ class Game:
 			Game.declareWinner(self, self.players.index(winner))
 			# break
 		while  not Game.checkBet(self):
-			for player in self.players:
+			for player in players:
 				if player.inRound and not player.getInBet():
 					print("The community cards are: ")
 					print(self.comCards)
@@ -491,6 +503,7 @@ def main():
 	getSessionKey(user_set)
 	# Todo - add session keys to dbs and to game functions
 	#create players
+
 	kb = Player("ksbains", 500, poker)
 	wayne = Player("wearnold", 500, poker)
 	junlan = Player("junlan", 500, poker)

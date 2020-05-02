@@ -12,7 +12,6 @@ class Player:
                 self.inBet = False
                 self.betBalance = 0
                 self.finalHand = []
-
         
         def __str__(self):
                 if self.hand == []:
