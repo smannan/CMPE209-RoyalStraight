@@ -39,7 +39,7 @@ def encrypt_token(context):
 
 gs_default = {
     "bet":0,
-    "pool":0,
+    "pot":0,
 }
 
 class User(db.Model):
@@ -77,6 +77,7 @@ class Player(db.Model):
     gameid = db.Column(db.Integer, db.ForeignKey('game.id'))
     # Player's private cards represented as a JSON value
     cards = db.Column(db.JSON)
+    hands = db.Column(db.List(db.String))
 
 class Update(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -84,6 +85,16 @@ class Update(db.Model):
     betround = db.Column(db.Integer, default=0)
     action = db.Column(db.Unicode)
     amount = db.Column(db.Integer, default=0)
+    token = db.Column(db.Unicode, nullable=False)
+
+    @validates('token')
+    def validate_token(self, key, value):
+        username = context.get_current_parameters()['username']
+        token = context.get_current_parameters()['token']
+        user = db.session.query(Game).filter_by(username=username)
+        assert token == user.token
+
+        return value
 
     @validates('action')
     def validate_action(self, key, value):

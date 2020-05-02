@@ -1,6 +1,8 @@
+import json
 from player import Player
 from royal_server.pokersqrl import Update
 import random
+from pprint import pprint
 import inquirer
 import requests
 from poker import *
@@ -18,7 +20,30 @@ class Game:
 		self.pot = 0
 		self.bet = 0
 		self.comCards = []
-	
+		self.playerTurn = self.players[0].getUsername()
+
+	def update_game_db(self):
+		player_names = []
+		for player in self.players:
+			player_names.append(player.getUsername()) 
+		
+		data = {
+			'pot':self.pot,
+			'bet':self.bet,
+			'comCards':self.comCards,
+			'players':player_names
+			'playerTurn':self.playerTurn
+			# Nice to have: data about who's in/out
+		}
+		pprint(data)
+		json_data = json.dumps(data)
+
+		# TODO: Write to Database
+
+	# TODO
+	def update_player_db(self):
+		pass
+
 	def addPlayer(self, player):
 		self.players.append(player)
 
@@ -27,7 +52,6 @@ class Game:
 			if playerUsername == player.getUsername():
 				self.players.remove(player)
 
-	
 	def ShuffleDeck(self):
 		random.shuffle(self.deck)
 	
@@ -67,24 +91,48 @@ class Game:
 		for player in self.players:
 			player.setInBet(False)
 			player.setBetBalance(0)
+
+		self.update_game_db()
+
+		#check if everyone folds
+		playerCount = len(self.players)
+		foldCount = 0
+		winner = self.players[0]
+		for player in self.players:
+			if not player.inRound:
+				foldCount = foldCount +1
+			else:
+				winner = player
+
+		if foldCount == playerCount - 1:
+			#break while loop and call winner as only person in game
+			Game.declareWinner(self, self.players.index(winner))
+
+			return 'gameover'
+			# break
+		return 'continue'
 					
 	def giveCardsBeg(self):
 		cardsNeeded = 2 * len(self.players)
 		cards = Game.getCards(self, cardsNeeded)
+		hand = []
 		for player in self.players:
-			player.hand.append(cards.pop())
-			player.hand.append(cards.pop())
+			hand.append(cards.pop())
+			hand.append(cards.pop())
+			# TODO: Write this to the DB
+			player.setHand(hand)
 
 	def getCards(self, need):
 		toReturn = []
-		i = 0
-		while i < need:
+		for _ in range(need):
 			#get a random card
-			card = Card.make_random()
-			if card in self.deck:
-				toReturn.append(card)
-				self.deck.remove(card)
-				i = i+1
+			card = self.deck.pop()
+			toReturn.append(card)
+
+			# card = Card.make_random()
+			# if card in self.deck:
+			#   toReturn.append(card)
+			# 	self.deck.remove(card)
 		return toReturn
 	
 	# THESE ARE ALL OF THE METHODS TO CHECK THE VALUE OF THE HANDS FOR PLAYERS.
@@ -322,8 +370,13 @@ class Game:
 		Game.getNewDeck(self)
 		Game.ShuffleDeck(self)
 		Game.setPot(self, 0)
-		self.resetRound()
-		Game.start(self)
+		self.setBet(0)
+		for player in self.players:
+			player.setInBet(False)
+			player.setBetBalance(0)
+			player.setFinalHand([])
+			self.update_player_db(player)
+		self.update_game_db()
 
 
 	def showdown(self):
@@ -347,74 +400,73 @@ class Game:
 		self.comCards = []
 		self.comCards = flop
 		self.setBet(0)
-		while  not Game.checkBet(self):
-			for player in self.players:
-				if player.inRound and not player.getInBet():
-					print("The community cards are: ")
-					print(self.comCards)
-					print(str(player))
-					print("The current pot is: " + str(self.getPot()) + " the current bet is: " + str(self.getBet()))
-					player.mainMenu()
-		
-		#this is the Turn
-		self.resetRound()
-		#check if everyone folds
-		playerCount = len(self.players)
-		foldCount = 0
-		winner = self.players[0]
-		for player in self.players:
-			if not player.inRound:
-				foldCount = foldCount +1
-			else:
-				winner = player
 
-		if foldCount == playerCount - 1:
-			#break while loop and call winner as only person in game
-			Game.declareWinner(self, self.players.index(winner))
-			# break
+		# Update DB here
+		# TODO: just prints json right now
+		self.update_game_db()
 
-		while  not Game.checkBet(self):
-			for player in self.players:
-				if player.inRound and not player.getInBet():
-					print("The community cards are: ")
-					print(self.comCards)
-					print(str(player))
-					print("The current pot is: " + str(self.getPot()) + " the current bet is: " + str(self.getBet()))
-					player.mainMenu()
-		
-		#this is the River
-		self.resetRound()
-		#check if everyone folds
-		playerCount = len(self.players)
-		foldCount = 0
-		winner = self.players[0]
-		for player in self.players:
-			if not player.inRound:
-				foldCount = foldCount +1
-			else:
-				winner = player
+		# Get the latest transaction ID and start from here
+		# TODO: correct function for the maxid
+		self.update_processor = Update.maxid + 1
 
-		if foldCount == playerCount - 1:
-			#break while loop and call winner as only person in game
-			Game.declareWinner(self, self.players.index(winner))
-			# break
-		while  not Game.checkBet(self):
-			for player in self.players:
-				if player.inRound and not player.getInBet():
-					print("The community cards are: ")
-					print(self.comCards)
-					print(str(player))
-					print("The current pot is: " + str(self.getPot()) + " the current bet is: " + str(self.getBet()))
-					player.mainMenu()
+
+				# if player.inRound and not player.getInBet():
+				# 	print("The community cards are: ")
+				# 	print(self.comCards)
+				# 	print(str(player))
+				# 	print("The current pot is: " + str(self.getPot()) + " the current bet is: " + str(self.getBet()))
+				# 	player.mainMenu()
+
+				# player posts to Update
+
+		for gameRound in ['Flop','Turn','River']:
+
+			print('Start of %s' % gameRound)
+
+			if gameRound in ['Turn','River']:
+				result = self.resetRound()
+				# TODO: game.commit()
+				if result == 'gameover':
+					return
+
+			while  not Game.checkBet(self):
+				for player in self.players:
+					# Wait for player response
+					if player.inRound and not player.getInBet():
+						self.playerTurn = player.getUsername()
+						self.update_game_db()
+						while True:
+							status = db.session.query(Update).filter_by(id=str(self.update_processor))
+							if status['username'] == player.getUsername()
+								self.pot += status['amount']-player.getBetBalance()
+								self.bet = status['amount']
+								self.update_player_db()
+								self.update_game_db()
+								break
+							elif not status:
+								# TODO: Test this
+								continue
+							self.update_processor +=1
+
+
+
+			# while  not Game.checkBet(self):
+			# 	for player in self.players:
+			# 		if player.inRound and not player.getInBet():
+			# 			print("The community cards are: ")
+			# 			print(self.comCards)
+			# 			print(str(player))
+			# 			print("The current pot is: " + str(self.getPot()) + " the current bet is: " + str(self.getBet()))
+			# 			player.mainMenu()
 
 		#this is the end of the game evaluating
 		self.showdown()
 
-		if(len(self.players) > 1):
-			Game.start(self)
-		else:
-			print("end of game!")
 
+	def manageGame(self):
+		while len(self.players) > 1:
+			self.start()
+		print("end of game!")
 
 
 def getSessionKey(user_set):

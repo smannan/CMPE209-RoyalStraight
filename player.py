@@ -124,7 +124,7 @@ class Player:
                                 'name': 'bet',
                                 'message': query,
                         }
-                        answer = prompt(question)
+                        answer = PyInquirer.prompt(questions)
                 bet = int(answer["bet"])
                 #do some game logic here
                 playerDiff = bet-self.getBetBalance()
