@@ -103,6 +103,12 @@ class Game(db.Model):
 	def addPlayer(self, player):
 		self.players.append(player)
 
+	def getPlayers():
+		return self.players 
+		#playersJSON == json.loads(Game.players)
+		# players = list((playersJSON.values()))
+		#return players
+
 	def removePlayer(self, playerUsername):
 		for player in self.players:
 			if playerUsername == player.getUsername():
@@ -486,6 +492,7 @@ class Game(db.Model):
 					return
 
 			while  not Game.checkBet(self):
+				players = self.getPlayers()
 				for player in self.players:
 					# Wait for player response
 					if player.inRound and not player.getInBet():
@@ -520,7 +527,7 @@ class Game(db.Model):
 
 
 	def manageGame(self):
-		while len(self.players) > 1:
+		while len(self.getPlayers()) > 1:
 			self.start()
 		print("end of game!")
 
