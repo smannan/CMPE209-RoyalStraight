@@ -4,7 +4,7 @@ import random
 import flask
 import flask_sqlalchemy
 import flask_restless
-from sqlalchemy.orm import validates
+from sqlalchemy.orm import validates, relationship
 from poker import Card
 
 sys.path.append("..")
@@ -20,6 +20,8 @@ from encryption import binary_to_ASCII as b2a
 app = flask.Flask(__name__)
 # app.config['DEBUG'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///poker.db'
+# Clears a warning
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = flask_sqlalchemy.SQLAlchemy(app)
 
 
@@ -53,6 +55,8 @@ class Game(db.Model):
     __tablename__ = 'game'
     id = db.Column(db.Integer, primary_key=True)
     data = db.Column(db.JSON, default=gs_default)
+    playerz = relationship("Player", back_populates='game',
+                        cascade="all, delete, delete-orphan")
 
     # def __init__(self, data=gs_default):
     def __init__(self):
@@ -72,6 +76,12 @@ class Game(db.Model):
         db.session.add(player1)
         db.session.commit() 
 
+def populate_token(context):
+    username = context.get_current_parameters()['username']
+    row = db.session.query(User).filter_by(username=username).first()
+    key = row.token
+    return key
+
 class Player(db.Model):
     __tablename__ = 'player'
     id = db.Column(db.Integer, primary_key=True)
@@ -80,7 +90,8 @@ class Player(db.Model):
     # Player's private cards represented as a JSON value
     cards = db.Column(db.JSON)
     hands = db.Column(db.JSON)
-    token = db.Column(db.Unicode, db.ForeignKey('user.token'))
+    user_token = db.Column(db.Unicode, default=populate_token)
+    game = relationship("Game", back_populates="playerz")
 
 class Update(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -88,16 +99,18 @@ class Update(db.Model):
     betround = db.Column(db.Integer, default=0)
     action = db.Column(db.Unicode)
     amount = db.Column(db.Integer, default=0)
-    token = db.Column(db.Unicode, nullable=False)
+    user_token = db.Column(db.Unicode, default=populate_token)
+    token = db.Column(db.Unicode)
 
-    @validates('token')
-    def validate_token(self, key, value):
-        username = context.get_current_parameters()['username']
-        token = context.get_current_parameters()['token']
-        user = db.session.query(Game).filter_by(username=username)
-        assert token == user.token
+    # @validates('user_token','token')
+    # def validate_token(self, key, value):
+    #     print("token_values")
+    #     # WHYYY IS THIS NONETYPE
+    #     print(value)
 
-        return value
+    #     # assert value == populate_token
+
+    #     return value
 
     @validates('action')
     def validate_action(self, key, value):
@@ -126,7 +139,7 @@ manager.create_api(User, methods=['GET', 'POST'], exclude_columns=['token'])
 manager.create_api(User, methods=['GET', 'POST'], collection_name='useradmin')
 # TODO: Remove POST, API doesn't need to expose game post, this is just for testing.
 manager.create_api(Game, methods=['GET', 'POST'])
-manager.create_api(Update, methods=['POST'])
+manager.create_api(Update, methods=['GET','POST'])
 manager.create_api(Player, methods=['GET', 'POST'])
 # manager.create_api(Update, methods=['POST'], exclude_columns=['token'])
 
@@ -161,14 +174,14 @@ if __name__ == "__main__":
     # 3b. Create a game
     game = Game()
     db.session.add(game)
-    print(game.data)
+    # print(game.data)
     # game.data['pot'] = 50
     db.session.commit()
     # print(game.id)
 
     # Just an example of a query
     our_game = db.session.query(Game).filter_by(id='1').first()
-    print(our_game.__dict__)
+
     # 3c. Add a player to the game
     player1 = Player(username=wayne.username, gameid=game.id)
     db.session.add(player1)
@@ -180,4 +193,4 @@ if __name__ == "__main__":
     # TODO: player makes an update
 
 
-    # app.run(debug=True)
+    app.run(debug=True)
