@@ -54,6 +54,7 @@ class Game(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     data = db.Column(db.JSON, default=gs_default)
 
+    # def __init__(self, data=gs_default):
     def __init__(self):
         #create deck with all of the cards
         self.deck = list(Card)
@@ -64,6 +65,7 @@ class Game(db.Model):
         self.pot = 0
         self.bet = 0
         self.comCards = []
+        # self.data = data
     
     def addPlayer(self, player):
         self.players.append(player)
@@ -77,7 +79,8 @@ class Player(db.Model):
     gameid = db.Column(db.Integer, db.ForeignKey('game.id'))
     # Player's private cards represented as a JSON value
     cards = db.Column(db.JSON)
-    hands = db.Column(db.List(db.String))
+    hands = db.Column(db.JSON)
+    token = db.Column(db.Unicode, db.ForeignKey('user.token'))
 
 class Update(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -158,12 +161,14 @@ if __name__ == "__main__":
     # 3b. Create a game
     game = Game()
     db.session.add(game)
+    print(game.data)
+    # game.data['pot'] = 50
     db.session.commit()
     # print(game.id)
 
     # Just an example of a query
     our_game = db.session.query(Game).filter_by(id='1').first()
-
+    print(our_game.__dict__)
     # 3c. Add a player to the game
     player1 = Player(username=wayne.username, gameid=game.id)
     db.session.add(player1)

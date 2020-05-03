@@ -9,7 +9,63 @@ from poker import *
 from SQLite import *
 from itertools import combinations
 
-class Game:
+import sys
+import binascii
+import random
+import flask
+import flask_sqlalchemy
+import flask_restless
+from sqlalchemy.orm import validates
+from poker import Card
+
+sys.path.append("..")
+from encryption import (
+    generateKeys,
+    generateSessionKey,
+    rsa_encrypt,
+    )
+from encryption import ASCII_to_binary as a2b
+from encryption import binary_to_ASCII as b2a
+
+# Create the Flask application and the Flask-SQLAlchemy object.
+app = flask.Flask(__name__)
+# app.config['DEBUG'] = True
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///poker.db'
+db = flask_sqlalchemy.SQLAlchemy(app)
+
+
+def encrypt_token(context):
+    b64_token = context.get_current_parameters()['token']
+    b64_pubkey = context.get_current_parameters()['pubkey']
+
+    # Convert to binary for the rsa_encrypt function
+    bin_token = a2b(b64_token)
+    bin_pubkey = a2b(b64_pubkey)
+    b64_enc_key = rsa_encrypt(bin_token, bin_pubkey)
+
+    # Convert back to utf8 for storage
+    return b64_enc_key
+    # return token+pubkey
+
+
+
+gs_default = {
+    "bet":0,
+    "pot":0,
+}
+
+class User(db.Model):
+    __tablename__ = 'user'
+    username = db.Column(db.Unicode, primary_key=True)
+    pubkey = db.Column(db.String, unique=True)
+    token = db.Column(db.Unicode, default=generateSessionKey(output='base64'))
+    enc_token = db.Column(db.Unicode, default=encrypt_token)
+
+class Game(db.Model):
+    __tablename__ = 'game'
+    id = db.Column(db.Integer, primary_key=True)
+    data = db.Column(db.JSON, default=gs_default)
+
 	def __init__(self):
 		#create deck with all of the cards
 		self.deck = list(Card)
