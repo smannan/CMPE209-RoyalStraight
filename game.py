@@ -5,7 +5,7 @@ import requests
 from poker import *
 from SQLite import *
 from encryption import *
-import os
+import json
 from itertools import combinations
 
 import binascii
@@ -423,15 +423,18 @@ class Game:
         else:
             print("end of game!")
 
+# /user POST request
+
 
 def getSessionKey(username, pubkey):
     url = 'https://go.warnold.dev/api/user'
-    data = {'username': username, 'pubkey': pubkey}
+    data = {"username": username, "pubkey": pubkey}
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
     print(data)
-    x = requests.post(url, data=data, headers=headers)
-    print(x.text)
-    return x
+    x = requests.post(url, data=json.dumps(data), headers=headers)
+    response_dict = json.loads(x.text)
+    print("response_dict: ", response_dict["enc_token"])
+    return response_dict["enc_token"]
 
 
 def main():
@@ -447,53 +450,52 @@ def main():
         open('pub_pri_keys/wearnold_public.pem', 'r').read()).exportKey('PEM')
     ksbains_public_key = RSA.importKey(
         open('pub_pri_keys/ksbains_public.pem', 'r').read()).exportKey('PEM')
-    print(junlan66_public_key)
 
     # get encrypted session keys from server
-    smannan_enc_sessionkey = getSessionKey('smannan', binascii.b2a_base64(
+    smannan_enc_sessionkey = getSessionKey('smannanT2', binascii.b2a_base64(
         smannan_public_key).decode('utf8'))
-    junlan66_enc_sessionkey = getSessionKey('junlan6', binascii.b2a_base64(
+    junlan66_enc_sessionkey = getSessionKey('junlan66T2', binascii.b2a_base64(
         junlan66_public_key).decode('utf8'))
-    wearnold_enc_sessionkey = getSessionKey('wearnolds', binascii.b2a_base64(
+    wearnold_enc_sessionkey = getSessionKey('wearnoldsT2', binascii.b2a_base64(
         wearnold_public_key).decode('utf8'))
-    ksbains_enc_sessionkey = getSessionKey('ksbains', binascii.b2a_base64(
+    ksbains_enc_sessionkey = getSessionKey('ksbainsT2', binascii.b2a_base64(
         ksbains_public_key).decode('utf8'))
 
     # get private keys from files
     smannan_pri_key = RSA.importKey(
-        open('pub_pri_keys/smannan_public.pem', 'r').read()).exportKey('PEM')
+        open('pub_pri_keys/smannan_private.pem', 'r').read()).exportKey('PEM')
     junlan66_pri_key = RSA.importKey(
-        open('pub_pri_keys/junlan66_public.pem', 'r').read()).exportKey('PEM')
+        open('pub_pri_keys/junlan66_private.pem', 'r').read()).exportKey('PEM')
     wearnold_pri_key = RSA.importKey(
-        open('pub_pri_keys/wearnold_public.pem', 'r').read()).exportKey('PEM')
+        open('pub_pri_keys/wearnold_private.pem', 'r').read()).exportKey('PEM')
     ksbains_pri_key = RSA.importKey(
-        open('pub_pri_keys/ksbains_public.pem', 'r').read()).exportKey('PEM')
-    print(junlan66_public_key)
+        open('pub_pri_keys/ksbains_private.pem', 'r').read()).exportKey('PEM')
 
     # decrypt session keys with private key
     smannan_dec_sessionkey = rsa_decrypt(
-        ASCII_to_binary(smannan_enc_sessionkey), smannan_pri_key)
+        smannan_enc_sessionkey, smannan_pri_key)
     junlan66_dec_sessionkey = rsa_decrypt(
-        ASCII_to_binary(junlan66_enc_sessionkey), junlan66_pri_key)
+        junlan66_enc_sessionkey, junlan66_pri_key)
     wearnold_dec_sessionkey = rsa_decrypt(
-        ASCII_to_binary(wearnold_enc_sessionkey), wearnold_pri_key)
+        wearnold_enc_sessionkey, wearnold_pri_key)
     ksbains_dec_sessionkey = rsa_decrypt(
-        ASCII_to_binary(ksbains_enc_sessionkey), ksbains_pri_key)
+        ksbains_enc_sessionkey, ksbains_pri_key)
+    print("decrypted session key in non-bin", wearnold_dec_sessionkey)
 
     # Todo - add session keys to dbs and to game functions
     # create players
-    # kb = Player("ksbains", 500, poker)
-    # wayne = Player("wearnold", 500, poker)
-    # junlan = Player("junlan", 500, poker)
-    # sonia = Player("smannan", 500, poker)
+    kb = Player("ksbains", 500, poker)
+    wayne = Player("wearnold", 500, poker)
+    junlan = Player("junlan", 500, poker)
+    sonia = Player("smannan", 500, poker)
 
     # # add the Players
-    # poker.addPlayer(kb)
-    # poker.addPlayer(wayne)
-    # poker.addPlayer(junlan)
-    # poker.addPlayer(sonia)
-    # # #start the game
-    # poker.start()
+    poker.addPlayer(kb)
+    poker.addPlayer(wayne)
+    poker.addPlayer(junlan)
+    poker.addPlayer(sonia)
+    # #start the game
+    poker.start()
 
 
 main()
