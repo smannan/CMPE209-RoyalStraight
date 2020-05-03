@@ -529,7 +529,6 @@ class Game(db.Model):
             self.start()
         print("end of game!")
 
-
 def getSessionKey(user_set):
     url = 'https://go.warnold.dev/api/register'
     for row in user_set:
