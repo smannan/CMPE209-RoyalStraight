@@ -1,4 +1,4 @@
-from poker import app
+from pokersqrl import app
 #from pokerapp import app
 
 if __name__ == "__main__":
