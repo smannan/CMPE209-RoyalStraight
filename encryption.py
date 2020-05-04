@@ -19,6 +19,10 @@ def generateSessionKey(output='binary'):
     elif output == 'base64':
         return binascii.b2a_base64(key).decode('utf8')
 
+def generateB64SessionKey():
+    key = get_random_bytes(16)
+    return binascii.b2a_base64(key).decode('utf8')   
+
 def rsa_encrypt(session_key, pubkey):
     # Encrypt the session key with the public RSA key
     pubkey = RSA.importKey(pubkey)
