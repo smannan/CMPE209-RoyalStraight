@@ -25,13 +25,13 @@ apiGame = "https://go.warnold.dev/api/game "
 apiUpdate = "https://go.warnold.dev/api/update"
 
 game = {
-  "cards": null, 
+  "cards": None, 
   "game": {
     "data": "{\"pot\": 110, \"bet\": 30, \"comCards\": [\"J\\u2660\", \"9\\u2660\", \"7\\u2666\"], \"players\": [\"wearnold\", \"ksbains\", \"junlan66\", \"smannan\"], \"playerTurn\": \"wearnold\"}", 
     "id": 1
   }, 
   "gameid": 1, 
-  "hands": null, 
+  "hands": None, 
   "id": 1, 
   "user_token": "uw469OnyKfqY9OHSLSTWEA==\n", 
   "username": "wearnold"
@@ -63,25 +63,26 @@ def startScript():
 		sys.exit()
 
 def userNamePrompt():
-	query = "please enter a username to be used in the game. "
+	query = "please enter a username to be used in the game"
 
 	try:
 		questions = [inquirer.Text('username', message=query)]
 		answer = inquirer.prompt(questions)
-	else:
+	except:
 		questions = {
 			'type': 'input',
 			"message": query,
-			"name": 'begin'
+			"name": 'username'
 		}
 		answer = PyInquirer.prompt(questions)
 
-		username = answer["begin"]
-		#generate keys, store private key and send over public key. 
-		
-		#then also se the balance, sessio key, and ammount
-		balance = 500
-		sessionKey = ""
+	username = answer["username"]
+	#generate keys, store private key and send over public key. 
+	
+	#then also se the balance, sessio key, and ammount
+	balance = 500
+	sessionKey = ""
+	print(answer["username"])
 
 
 
@@ -94,57 +95,66 @@ def getInfo(GameDictionary, field):
 def apiCall():
 	# game = json.loads()
 	# GET api/username?
+	return
+
 
 def getTurn():
 	#json.p
-	return "DB turn"
 	#set local from DB?
+	return "DB turn"
 
 def postTurn():
 	#do some logic here to post turn.
 	#post(DBJSON object?)
 	# POST api/username? 
+	return
 
 
-# instead of true, should be as long as game is active
-while True:
-	turn = getTurn()
-	# needs to print whose turn it is and is interactig with the game server
-	while turn != username:
-		# sleep for a bit, and then keep checking if it is their turn 
-		sleep(1)
+def runner():
+	# instead of true, should be as long as game is active
+	while True:
+		turn = getTurn()
+		# needs to print whose turn it is and is interactig with the game server
+		while turn != username:
+			sleep(1)
+			# sleep for a bit, and then keep checking if it is their turn 
+			
+		
+		# this is the code to prompt the user if it is thier turn. 
+		query = "Hey there " + self.username + " what would you like to do?"
+		try:
+			questions = [inquirer.List('options', message = query, choices = ['bet', 'check', 'raise', 'fold', 'call'],),]
+			answer = inquirer.prompt(questions)
+		except:
+			questions = {
+				'type':'list',
+				'choices' : ['bet', 'check', 'raise', 'fold', 'call'],
+				'message':query,
+				'name':'options'
+			}
+			answer = PyInquirer.prompt(questions)
 
-
-	# this is the code to prompt the user if it is thier turn. 
-	query = "Hey there " + self.username + " what would you like to do?"
-    try:
-        questions = [inquirer.List('options', message = query, choices = ['bet', 'check', 'raise', 'fold', 'call'],),]
-        answer = inquirer.prompt(questions)
-    except:
-        questions = {
-            'type':'list',
-            'choices' : ['bet', 'check', 'raise', 'fold', 'call'],
-            'message':query,
-            'name':'options'
-    	}
-        answer = PyInquirer.prompt(questions)
-
-    if answer["options"] == "bet":
-        #do game logic
-    elif answer["options"] == "check":
-        #do game logic
-    elif answer["options"] == "raise":
-	    #do game logic
-	    #should be same to bet
-	elif answer["options"] == "call":
-		#do some game logic, should be same as check
-	elif answer["options"] == "fold":
-		#do some game logic
-		#set the inROund to False
-	else:
-		print("this is an error!!!")
-	
-	posTturn()
+		if answer["options"] == "bet":
+			print("bet")
+	        #do game logic
+		elif answer["options"] == "check":
+			print("check")
+	        #do game logic
+		elif answer["options"] == "raise":
+			print("raise")
+		    #do game logic
+		    #should be same to bet
+		elif answer["options"] == "call":
+			print("call")
+			#do some game logic, should be same as check
+		elif answer["options"] == "fold":
+			print("fold")
+			#do some game logic
+			#set the inROund to False
+		else:
+			print("this is an error!!!")
+		
+		posTturn()
 
 
 
@@ -156,3 +166,4 @@ def main():
 	startScript()
 	
 
+main()
