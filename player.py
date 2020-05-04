@@ -1,5 +1,3 @@
-# from game import Game
-
 import inquirer
 # Needed for Windows support :(
 try:

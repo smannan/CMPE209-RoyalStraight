@@ -493,7 +493,7 @@ class Game(db.Model):
 
 			while  not Game.checkBet(self):
 				players = self.getPlayers()
-				for player in self.players:
+				for player in players:
 					# Wait for player response
 					if player.inRound and not player.getInBet():
 						self.playerTurn = player.getUsername()
