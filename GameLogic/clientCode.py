@@ -1,5 +1,6 @@
 import inquirer
 import json
+import sys
 # Needed for Windows support :(
 try:
         import PyInquirer
@@ -12,24 +13,87 @@ except:
 # PoST(sessionKey) -> player Table. 
 # set the balance, betBalance...
 
-
-
-
-
 username = ""
 amount = 50
 action = ""
 sessionkey = ""
 
-game = {}
+apiUserAdmin = "https://go.warnold.dev/api/useradmin"
+apiPlayer = "https://go.warnold.dev/api/player "
+apiUser = "https://go.warnold.dev/api/user"
+apiGame = "https://go.warnold.dev/api/game "
+apiUpdate = "https://go.warnold.dev/api/update"
+
+game = {
+  "cards": null, 
+  "game": {
+    "data": "{\"pot\": 110, \"bet\": 30, \"comCards\": [\"J\\u2660\", \"9\\u2660\", \"7\\u2666\"], \"players\": [\"wearnold\", \"ksbains\", \"junlan66\", \"smannan\"], \"playerTurn\": \"wearnold\"}", 
+    "id": 1
+  }, 
+  "gameid": 1, 
+  "hands": null, 
+  "id": 1, 
+  "user_token": "uw469OnyKfqY9OHSLSTWEA==\n", 
+  "username": "wearnold"
+}
 
 playerMove = {}
 
 
 
+# this is the code to prompt the user if it is thier turn. 
+def startScript():
+	query = "Welcome to Royal Straight Casino! Would you like to play some poker?"
+	
+	try:
+	    questions = [inquirer.List('begin', message = query, choices = ['yes', 'exit'],),]
+	    answer = inquirer.prompt(questions)
+	except:
+	    questions = {
+	        'type':'list',
+	        'choices' : ['yes', 'exit'],
+	        'message':query,
+	        'name':'begin'
+		}
+	    answer = PyInquirer.prompt(questions)
+
+	if answer["begin"] == 'yes':
+		userNamePrompt()
+	else:
+		sys.exit()
+
+def userNamePrompt():
+	query = "please enter a username to be used in the game. "
+
+	try:
+		questions = [inquirer.Text('username', message=query)]
+		answer = inquirer.prompt(questions)
+	else:
+		questions = {
+			'type': 'input',
+			"message": query,
+			"name": 'begin'
+		}
+		answer = PyInquirer.prompt(questions)
+
+		username = answer["begin"]
+		#generate keys, store private key and send over public key. 
+		
+		#then also se the balance, sessio key, and ammount
+		balance = 500
+		sessionKey = ""
+
+
+
+
+
+
+def getInfo(GameDictionary, field):
+	return game
+
 def apiCall():
 	# game = json.loads()
-	GET api/username?
+	# GET api/username?
 
 def getTurn():
 	#json.p
@@ -39,7 +103,7 @@ def getTurn():
 def postTurn():
 	#do some logic here to post turn.
 	#post(DBJSON object?)
-	POST api/username? 
+	# POST api/username? 
 
 
 # instead of true, should be as long as game is active
@@ -88,6 +152,7 @@ while True:
 
 
 
-
+def main():
+	startScript()
 	
 

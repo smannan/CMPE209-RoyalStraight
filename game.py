@@ -31,6 +31,8 @@ from encryption import binary_to_ASCII as b2a
 app = flask.Flask(__name__)
 # app.config['DEBUG'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///poker.db'
+# Clears a warning
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = flask_sqlalchemy.SQLAlchemy(app)
 
 
@@ -531,34 +533,33 @@ class Game(db.Model):
 			self.start()
 		print("end of game!")
 
-
 def getSessionKey(user_set):
-	url = 'https://go.warnold.dev/api/register'
-	for row in user_set:
-		myobj = {'username': row[0], 'publickey': row[1]}
-		x = requests.post(url, data=myobj)
-		print(x)
-	
+    url = 'https://go.warnold.dev/api/register'
+    for row in user_set:
+        myobj = {'username': row[0], 'publickey': row[1]}
+        x = requests.post(url, data=myobj)
+        print(x)
+    
 def main():
-	#create the Game
-	poker = Game()
-	clearDB()
-	startup()
-	user_set = users()
-	getSessionKey(user_set)
-	# Todo - add session keys to dbs and to game functions
-	#create players
-	kb = Player("ksbains", 500, poker)
-	wayne = Player("wearnold", 500, poker)
-	junlan = Player("junlan", 500, poker)
-	sonia = Player("smannan", 500, poker)
-	
-	#add the Players
-	poker.addPlayer(kb)
-	poker.addPlayer(wayne)
-	poker.addPlayer(junlan)
-	poker.addPlayer(sonia)
-	# #start the game
-	poker.start()
+    #create the Game
+    poker = Game()
+    clearDB()
+    startup()
+    user_set = users()
+    getSessionKey(user_set)
+    # Todo - add session keys to dbs and to game functions
+    #create players
+    kb = Player("ksbains", 500, poker)
+    wayne = Player("wearnold", 500, poker)
+    junlan = Player("junlan", 500, poker)
+    sonia = Player("smannan", 500, poker)
+    
+    #add the Players
+    poker.addPlayer(kb)
+    poker.addPlayer(wayne)
+    poker.addPlayer(junlan)
+    poker.addPlayer(sonia)
+    # #start the game
+    poker.start()
 
 main()
