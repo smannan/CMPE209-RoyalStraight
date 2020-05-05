@@ -82,15 +82,39 @@ def userNamePrompt():
 	#then also se the balance, sessio key, and ammount
 	balance = 500
 	sessionKey = ""
-	print(answer["username"])
+	# print(answer["username"])
+	# print(list(game["game"].values()))
+	# print(list(game["game"].keys()))
+	data = game["game"]
+	print(data["data"])
+	print("The pot is: " + str(getInfo(game["game"], "pot")))
+	print("The bet is: " + str(getInfo(game["game"], "bet")))
+	
+	print("The comCards are: ")
+	print(getInfo(game["game"], "comCards"))
+	
+	print("The players are: ")
+	print(getInfo(game["game"], "players"))
+
+	print("It is " + getInfo(game["game"], "playerTurn") + "'s Turn")
+	
+	
 
 
 
 
 
 
-def getInfo(GameDictionary, field):
-	return game
+
+def getInfo(GameDictionary, key):
+	JSONData = json.loads(GameDictionary["data"])
+
+	if key == "comCards":
+		return JSONData["comCards"]
+	elif key == "players":
+		return JSONData["players"]
+	else:
+		return JSONData[key]
 
 def apiCall():
 	# game = json.loads()
