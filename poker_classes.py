@@ -84,10 +84,11 @@ class Update(db.Model):
 
 class Player(db.Model):
     __tablename__ = 'player'
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.Unicode, db.ForeignKey('user.username'))
+    # id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.Unicode, db.ForeignKey('user.username'), primary_key=True)
     gameid = db.Column(db.Integer, db.ForeignKey('game.id'))
     balance = db.Column(db.Integer, default=500)
+    betBalance = db.Column(db.Integer, default=0)
     # Player's private cards represented as a JSON value
     cards = db.Column(db.JSON)
     user_token = db.Column(db.Unicode, default=populate_token)
@@ -104,7 +105,7 @@ class Player(db.Model):
         # self.game = game
         self.inRound = True
         self.inBet = False
-        self.betBalance = 0
+        # self.betBalance = betBalance
         self.finalHand = []
 
         
@@ -115,13 +116,7 @@ class Player(db.Model):
                 return self.username + " has a balance of " + str(self.balance) + " AND hand of " + str(self.hand[0]) + " " + str(self.hand[1]) +" AND a betBalance of " + str(self.getBetBalance()) 
     
     def update_player_db(self):
-        strHand = []
-        for card in self.hand:
-            strHand.append(str(card))
-            
-        self.cards = json.dumps(strHand)
         db.session.commit()
-
 
     def getUsername(self):
         return self.username
@@ -131,6 +126,11 @@ class Player(db.Model):
 
     def setHand(self, hand):
         self.hand = hand
+        strHand = []
+        for card in self.hand:
+            strHand.append(str(card))
+            
+        self.cards = json.dumps(strHand)
         self.update_player_db()
 
     def getFinalHand(self):
@@ -155,6 +155,8 @@ class Player(db.Model):
         return self.inBet
 
     def setInBet(self, inBet):
+        # print('Setting player to inbet:')
+        # print(inBet)
         self.inBet = inBet
 
     def getBetBalance(self):
@@ -227,7 +229,8 @@ class Player(db.Model):
                 answer = PyInquirer.prompt(questions)
             bet = int(answer["bet"])
         #do some game logic here
-        playerDiff = bet-self.getBetBalance()
+        # playerDiff = bet-self.getBetBalance()
+        playerDiff = bet - self.betBalance
         if bet > self.game.getBet() and self.balance >= playerDiff:
             self.balance = self.balance - playerDiff
             self.game.setBet(bet)
@@ -256,7 +259,8 @@ class Player(db.Model):
     def fold(self):
         #do some game logic here
         self.setInRound(False)
-        print(self.username  + ", you have folded " + ", see ya next round!")
+        # print(self.username  + ", you have folded " + ", see ya next round!")
+        print(self.username + " has folded.")
 
 gs_default = {
     "bet":0,
@@ -287,10 +291,6 @@ class Game(db.Model):
         db.session.commit()
         for player in self.players:
             player_names.append(player.getUsername())
-            
-            # Class functions aren't initialized if player
-            #  was posted from API
-            player.__init__()
             db.session.commit() 
         
         strComCards = []
@@ -659,6 +659,10 @@ class Game(db.Model):
 
         # Make sure that the players all have the proper class funcs
         self.update_game_db()
+        for player in self.players:
+            # Class functions aren't initialized if player
+            #  was posted from API
+            player.__init__()
 
         Game.giveCardsBeg(self)
 
@@ -700,6 +704,7 @@ class Game(db.Model):
                             print(status)
                             if status is None:
                                 print('Waiting for input, user should be %s' % player.getUsername())
+                                # TODO: TAKE THIS OUT
                                 sleep(5)
                                 continue
                             print('Status.username = %s' % status.username)
@@ -710,7 +715,14 @@ class Game(db.Model):
                                 #     print('Found matching token')
                                     if status.action in ('bet', 'raise'):
                                         # Do a thing
-                                        player.bet(amount)
+                                        player.bet(status.amount)
+                                        db.session.commit()
+                                    elif status.action == 'check':
+                                        player.check()
+                                        db.session.commit()
+                                    elif status.action == 'fold':
+                                        player.fold()
+                                        db.session.commit()
                                     else:
                                         pass
                                     # If user bets more than they have

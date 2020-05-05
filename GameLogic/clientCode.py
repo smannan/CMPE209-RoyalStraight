@@ -1,4 +1,4 @@
-import inquirer
+# import inquirer
 import json
 import requests
 import sys
@@ -14,10 +14,8 @@ from encryption import (
 	)
 
 # Needed for Windows support :(
-try:
-		import PyInquirer
-except:
-		pass
+import PyInquirer
+
 
 # Promt the player for username, get public key and send POST request
 # set local username, balnace, session key
@@ -40,6 +38,10 @@ def getGame():
 	# print(result)
 	gameData = result.json()
 	return json.loads(gameData["data"])
+
+def getPlayer(player):
+	result = requests.get(apiPlayer + '/' + player)
+	return result.json()
 
 GAME_EX = {
   "cards": None, 
@@ -148,7 +150,7 @@ def userNamePrompt():
 	print("The players are: ")
 	print(data['players'])
 
-	print("It is " + data["playerTurn"] + "'s Turn")
+	# print("It is " + data["playerTurn"] + "'s Turn")
 	
 	return username, sessionKey
 
@@ -175,61 +177,74 @@ def postTurn(data):
 def runner(username, sessionKey):
 	# instead of true, should be as long as game is active
 	while True:
-		turn = ''
+		sleep(1)
+		turn = getTurn()
+		# print("Initial turn check: %s" % turn)
+
 		# needs to print whose turn it is and is interactig with the game server
-		while turn != username:
-			sleep(1)
+		if turn != username:
 			turn = getTurn()
 			print("It's %s's turn" % turn)
+		while turn != username:
+			sleep(1)
+
 			# sleep for a bit, and then keep checking if it is their turn 
-			
 		
+		data = getGame()
+		player = getPlayer(username)
+		player_print = "Username: {username}\n"
+		player_print += "Balance: {balance}\n"
+		
+		print(player_print.format(**player))
+		
+		player_print = "Your Cards: {0}, {1}\n"
+		print(player_print.format(player['cards'][0],player['cards'][1]))
+
 		# this is the code to prompt the user if it is thier turn. 
 		query = "Hey there " + username + " what would you like to do?"
-		try:
-			questions = [inquirer.List('options', message = query, choices = ['bet', 'check', 'raise', 'fold', 'call'],),]
-			answer = inquirer.prompt(questions)
-		except:
+		choices = ['bet', 'check', 'raise', 'fold']
+
+		questions = {
+			'type':'list',
+			'choices' : choices,
+			'message':query,
+			'name':'options'
+		}
+		answer = PyInquirer.prompt(questions)
+		response = answer["options"]
+		if response in ("raise", "bet"):
+			query_str = "How much would you like to bet? bet value needs to be greater than current bet of %d"
+			query =  query_str % data['bet']
 			questions = {
-				'type':'list',
-				'choices' : ['bet', 'check', 'raise', 'fold', 'call'],
-				'message':query,
-				'name':'options'
+				'type': 'input',
+				'name': 'bet',
+				'message': query,
 			}
 			answer = PyInquirer.prompt(questions)
+			bet = int(answer["bet"])
 
-		if answer["options"] == "bet":
-			print("bet")
-			#do game logic
-		elif answer["options"] == "check":
-			print("check")
-			#do game logic
-		elif answer["options"] == "raise":
-			print("raise")
-			#do game logic
-			#should be same to bet
-		elif answer["options"] == "call":
-			print("call")
-			#do some game logic, should be same as check
-		elif answer["options"] == "fold":
-			print("fold")
-			#do some game logic
-			#set the inROund to False
-		else:
-			print("this is an error!!!")
-		
-		action = answer["options"]
-		if action in ('bet', 'raise'):
-			amount = 50
-		else:
-			amount = 0
+			playerDiff = data['bet'] - player['betBalance']
+			if bet > data['bet'] and player['balance'] >= playerDiff:
+				amount = bet
+			else:
+				print('Not a good bet amount')
+				continue
+		elif response == 'check':
+			amount = data['bet']
+			#do some game logic here
+			playerDiff = data['bet'] - player['betBalance']
+			if player['balance'] >= playerDiff:
+				amount = playerDiff
+				#DB call 
+			else:
+				print("Sorry! You don't have enough money to check this round, good luck next round")
 
 		print('Betting %d' % amount)
 		
 		data = {
 			'username':username,
 			'amount':amount,
-			'action':action,
+			'action':response,
 			'token':sessionKey
 		}
 
@@ -243,9 +258,6 @@ def runner(username, sessionKey):
 
 def main():
 	username, sessionKey = startScript()
-	print('vars')
-	print(username)
-	print(sessionKey)
 	runner(username, sessionKey)
 
 main()
