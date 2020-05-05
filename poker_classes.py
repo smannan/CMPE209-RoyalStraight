@@ -688,6 +688,23 @@ class Game(db.Model):
                                     print("Username matches, ignoring token")
                                 # if status.token == status.user_token:
                                 #     print('Found matching token')
+                                    if status.action in ('bet', 'raise'):
+                                        # Do a thing
+                                        pass
+                                    else:
+                                        pass
+                                    # If user bets more than they have
+                                    # Should also have a client side check
+                                    if status.amount-player.getBetBalance() < 0:
+                                        self.update_processor +=1
+                                        db.session.commit()
+                                        break
+
+                                    ##############
+                                    # Server things
+                                    ##############
+                                    # Check inbet/inround
+                                    # other stuff
                                     self.pot += status.amount-player.getBetBalance()
                                     self.bet = status.amount
                                     self.update_player_db()

@@ -63,5 +63,16 @@ if __name__ == "__main__":
         poker.addPlayer(player)
         db.session.commit()
     
+    waiting = True
+    if waiting:
+        pass
+        # TODO: multiple games
+        game_id = 1
+        # TODO: Check if this works
+        result = db.session.query(Player).filter_by(gameid=game_id)
+        if len(result) == 4:
+            waiting = False
+        # GET Check number of players in the game
+
     # #start the game
     poker.start()
