@@ -91,7 +91,8 @@ class Player(db.Model):
     # Player's private cards represented as a JSON value
     cards = db.Column(db.JSON)
     user_token = db.Column(db.Unicode, default=populate_token)
-    # game = relationship("Game", back_populates="playerz")
+    game = relationship("Game")
+    pubkey = db.Column(db.String, db.ForeignKey('user.pubkey'))
 
     # def __init__(self, username, balance, game):
     # def __init__(self):
@@ -386,8 +387,8 @@ class Game(db.Model):
     def giveCardsBeg(self):
         cardsNeeded = 2 * len(self.players)
         cards = Game.getCards(self, cardsNeeded)
-        hand = []
         for player in self.players:
+            hand = []
             hand.append(cards.pop())
             hand.append(cards.pop())
             # TODO: Write this to the DB

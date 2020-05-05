@@ -19,7 +19,7 @@ manager.create_api(Game, methods=['GET'])
 manager.create_api(Update, methods=['GET','POST'])
 
 
-manager.create_api(Player, methods=['GET'])
+manager.create_api(Player, methods=['GET'], collection_name='playerinfo', exclude_columns=['user_token'])
 manager.create_api(Player, methods=['POST'], exclude_columns=['balance'])
 # manager.create_api(Update, methods=['POST'], exclude_columns=['token'])
 
