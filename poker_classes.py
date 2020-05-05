@@ -90,7 +90,6 @@ class Player(db.Model):
     balance = db.Column(db.Integer, default=500)
     # Player's private cards represented as a JSON value
     cards = db.Column(db.JSON)
-    hands = db.Column(db.JSON)
     user_token = db.Column(db.Unicode, default=populate_token)
     # game = relationship("Game", back_populates="playerz")
 
@@ -113,6 +112,16 @@ class Player(db.Model):
                 return self.username + " has a balance of " + str(self.balance) + " and empty hand"
         else:
                 return self.username + " has a balance of " + str(self.balance) + " AND hand of " + str(self.hand[0]) + " " + str(self.hand[1]) +" AND a betBalance of " + str(self.getBetBalance()) 
+    
+    def update_player_db(self):
+        strHand = []
+        for card in self.hand:
+            strHand.append(str(card))
+            
+        self.cards = json.dumps(strHand)
+        db.session.commit()
+
+
     def getUsername(self):
         return self.username
 
@@ -121,6 +130,7 @@ class Player(db.Model):
 
     def setHand(self, hand):
         self.hand = hand
+        self.update_player_db()
 
     def getFinalHand(self):
         return self.finalHand
@@ -298,10 +308,6 @@ class Game(db.Model):
         self.data = json_data
         db.session.commit()
         # TODO: Write to Database
-
-    # TODO
-    def update_player_db(self):
-        pass
 
     def addPlayer(self, player):
         self.players.append(player)
@@ -635,7 +641,7 @@ class Game(db.Model):
             player.setInBet(False)
             player.setBetBalance(0)
             player.setFinalHand([])
-            self.update_player_db(player)
+            player.update_player_db()
         self.update_game_db()
 
 
@@ -719,7 +725,8 @@ class Game(db.Model):
                                     # other stuff
                                     self.pot += status.amount-player.getBetBalance()
                                     self.bet = status.amount
-                                    self.update_player_db()
+                                    for player in self.players:
+                                        player.update_player_db()
                                     self.update_game_db()
                                     # Until I fix the update__db methods
                                     self.update_processor +=1
