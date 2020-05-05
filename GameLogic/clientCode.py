@@ -197,6 +197,7 @@ def runner(username, sessionKey):
 			turn = getTurn()
 			print("It's %s's turn" % turn)
 		while turn != username:
+			turn = getTurn()
 			sleep(1)
 
 			# sleep for a bit, and then keep checking if it is their turn 
