@@ -1,5 +1,6 @@
 import inquirer
 import json
+import requests
 import sys
 # Needed for Windows support :(
 try:
@@ -19,10 +20,16 @@ action = ""
 sessionkey = ""
 
 apiUserAdmin = "https://go.warnold.dev/api/useradmin"
-apiPlayer = "https://go.warnold.dev/api/player "
+apiPlayer = "https://go.warnold.dev/api/player"
 apiUser = "https://go.warnold.dev/api/user"
-apiGame = "https://go.warnold.dev/api/game "
+apiGame = "https://go.warnold.dev/api/game"
 apiUpdate = "https://go.warnold.dev/api/update"
+
+def getGame():
+	result = requests.get(apiGame + '/1')
+	print(result)
+	gameData = result.json()
+	return json.loads(gameData["data"])
 
 game = {
   "cards": None, 
@@ -60,6 +67,7 @@ def startScript():
 	if answer["begin"] == 'yes':
 		userNamePrompt()
 	else:
+		print("Goodbye!")
 		sys.exit()
 
 def userNamePrompt():
@@ -85,18 +93,18 @@ def userNamePrompt():
 	# print(answer["username"])
 	# print(list(game["game"].values()))
 	# print(list(game["game"].keys()))
-	data = game["game"]
-	print(data["data"])
-	print("The pot is: " + str(getInfo(game["game"], "pot")))
-	print("The bet is: " + str(getInfo(game["game"], "bet")))
+	# data = json.loads(getGame())
+	data = getGame()
+	print("The pot is: " + str(getInfo(data, "pot")))
+	print("The bet is: " + str(getInfo(data, "bet")))
 	
 	print("The comCards are: ")
-	print(getInfo(game["game"], "comCards"))
+	print(getInfo(data, "comCards"))
 	
 	print("The players are: ")
-	print(getInfo(game["game"], "players"))
+	print(getInfo(data, "players"))
 
-	print("It is " + getInfo(game["game"], "playerTurn") + "'s Turn")
+	print("It is " + getInfo(data, "playerTurn") + "'s Turn")
 	
 	
 
@@ -107,14 +115,13 @@ def userNamePrompt():
 
 
 def getInfo(GameDictionary, key):
-	JSONData = json.loads(GameDictionary["data"])
-
+	# JSONData = json.loads(GameDictionary["data"])
 	if key == "comCards":
-		return JSONData["comCards"]
+		return GameDictionary["comCards"]
 	elif key == "players":
-		return JSONData["players"]
+		return GameDictionary["players"]
 	else:
-		return JSONData[key]
+		return GameDictionary[key]
 
 def apiCall():
 	# game = json.loads()
