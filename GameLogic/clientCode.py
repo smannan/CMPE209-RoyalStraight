@@ -24,8 +24,8 @@ import PyInquirer
 # set the balance, betBalance...
 
 
-# serverName = "https://go.warnold.dev/api/"
-serverName = "http://localhost:5000/api/"
+serverName = "https://go.warnold.dev/api/"
+# serverName = "http://localhost:5000/api/"
 
 apiUserAdmin = serverName + "useradmin"
 apiPlayer = serverName + "player"
@@ -196,9 +196,8 @@ def runner(username, sessionKey):
 		player_print += "Balance: {balance}\n"
 		
 		print(player_print.format(**player))
-		
-		player_print = "Your Cards: {0}, {1}\n"
-		print(player_print.format(player['cards'][0],player['cards'][1]))
+		print("\nYour cards are:")
+		print(json.loads(player['cards']))
 
 		# this is the code to prompt the user if it is thier turn. 
 		query = "Hey there " + username + " what would you like to do?"
@@ -229,6 +228,7 @@ def runner(username, sessionKey):
 			else:
 				print('Not a good bet amount')
 				continue
+			print('Betting %d' % amount)
 		elif response == 'check':
 			amount = data['bet']
 			#do some game logic here
@@ -238,8 +238,9 @@ def runner(username, sessionKey):
 				#DB call 
 			else:
 				print("Sorry! You don't have enough money to check this round, good luck next round")
+		elif response == 'fold':
+			print("You have folded, see ya next round!")
 
-		print('Betting %d' % amount)
 		
 		data = {
 			'username':username,
