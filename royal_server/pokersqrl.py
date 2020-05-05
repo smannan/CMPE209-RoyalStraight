@@ -11,6 +11,7 @@ sys.path.append("..")
 from encryption import (
     generateKeys,
     generateSessionKey,
+    generateB64SessionKey,
     rsa_encrypt,
     )
 from encryption import ASCII_to_binary as a2b
@@ -48,7 +49,7 @@ class User(db.Model):
     __tablename__ = 'user'
     username = db.Column(db.Unicode, primary_key=True)
     pubkey = db.Column(db.String, unique=True)
-    token = db.Column(db.Unicode, default=generateSessionKey(output='base64'))
+    token = db.Column(db.Unicode, default=generateB64SessionKey)
     enc_token = db.Column(db.Unicode, default=encrypt_token)
 
 class Game(db.Model):
@@ -99,18 +100,11 @@ class Update(db.Model):
     betround = db.Column(db.Integer, default=0)
     action = db.Column(db.Unicode)
     amount = db.Column(db.Integer, default=0)
-    user_token = db.Column(db.Unicode, default=populate_token)
     token = db.Column(db.Unicode)
+    user_token = db.Column(db.Unicode, default=populate_token)
 
-    # @validates('user_token','token')
-    # def validate_token(self, key, value):
-    #     print("token_values")
-    #     # WHYYY IS THIS NONETYPE
-    #     print(value)
-
-    #     # assert value == populate_token
-
-    #     return value
+    # TODO try validating user token with second session
+    
 
     @validates('action')
     def validate_action(self, key, value):
@@ -140,6 +134,8 @@ manager.create_api(User, methods=['GET', 'POST'], collection_name='useradmin')
 # TODO: Remove POST, API doesn't need to expose game post, this is just for testing.
 manager.create_api(Game, methods=['GET', 'POST'])
 manager.create_api(Update, methods=['GET','POST'])
+
+
 manager.create_api(Player, methods=['GET', 'POST'])
 # manager.create_api(Update, methods=['POST'], exclude_columns=['token'])
 
@@ -149,47 +145,55 @@ if __name__ == "__main__":
     # Run a bunch of commands if this is called as __main__
 
     # 1. Cleanup database
-    db.drop_all()
+    # db.drop_all()
 
     # 2. (Re)create the database tables.
-    db.create_all()
+    # db.create_all()
 
     # 3. Add test data to the db's.
 
-    # 3a. Add a user
-
-    prikey, pubkey = generateKeys()
-    b64_pubkey = b2a(pubkey)
-
-    user_dict = {
-        'username':'warnold',
-        'pubkey':b64_pubkey
-    }
-
-    wayne = User(**user_dict)
-    db.session.add(wayne)
+    # 3a. Add users
+    usernames = ['wearnold','ksbains','junlan66','smannan']
+    users = []
+    for un in usernames:
+        # Try and read the file for speed
+        try:
+            with open('pubkey_%s' % un, 'rb') as f:
+                pubkey = f.read()
+                b64_pubkey = b2a(pubkey)
+        except:
+            prikey, pubkey = generateKeys()
+            with open('prikey_%s' % un, 'wb') as f:
+                f.write(prikey)
+            with open('pubkey_%s' % un, 'wb') as f:
+                f.write(pubkey)
+            b64_pubkey = b2a(pubkey)
+        user_dict = {
+            'username':un,
+            'pubkey':b64_pubkey
+        }
+        user = User(**user_dict)
+        db.session.add(user)
+        users.append(user)
     db.session.commit()
-    # print(wayne.id)
-    
+            
     # 3b. Create a game
     game = Game()
     db.session.add(game)
+    db.session.commit()
     # print(game.data)
     # game.data['pot'] = 50
-    db.session.commit()
-    # print(game.id)
 
     # Just an example of a query
     our_game = db.session.query(Game).filter_by(id='1').first()
 
     # 3c. Add a player to the game
-    player1 = Player(username=wayne.username, gameid=game.id)
-    db.session.add(player1)
+    for user in users:
+        player = Player(username=user.username, gameid=game.id)
+        db.session.add(player)
     db.session.commit()
-    # print(player1.id)
-    
-    # TODO: add more players
-
+    print(game.playerz)
+   
     # TODO: player makes an update
 
 
