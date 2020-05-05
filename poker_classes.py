@@ -212,19 +212,20 @@ class Player(db.Model):
         else: 
             self.fold()
 
-    def bet(self):
-        query = "How much would you like to bet? bet value needs to be greater than current bet of " + str(self.game.getBet())
-        try:
-            question = [inquirer.Text('bet', query)]
-            answer = inquirer.prompt(question)
-        except:
-            questions = {
-                'type': 'input',
-                'name': 'bet',
-                'message': query,
-            }
-            answer = PyInquirer.prompt(questions)
-        bet = int(answer["bet"])
+    def bet(self, bet=None):
+        if not bet:
+            query = "How much would you like to bet? bet value needs to be greater than current bet of " + str(self.game.getBet())
+            try:
+                question = [inquirer.Text('bet', query)]
+                answer = inquirer.prompt(question)
+            except:
+                questions = {
+                    'type': 'input',
+                    'name': 'bet',
+                    'message': query,
+                }
+                answer = PyInquirer.prompt(questions)
+            bet = int(answer["bet"])
         #do some game logic here
         playerDiff = bet-self.getBetBalance()
         if bet > self.game.getBet() and self.balance >= playerDiff:
@@ -709,7 +710,7 @@ class Game(db.Model):
                                 #     print('Found matching token')
                                     if status.action in ('bet', 'raise'):
                                         # Do a thing
-                                        pass
+                                        player.bet(amount)
                                     else:
                                         pass
                                     # If user bets more than they have
