@@ -87,6 +87,7 @@ class Player(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.Unicode, db.ForeignKey('user.username'))
     gameid = db.Column(db.Integer, db.ForeignKey('game.id'))
+    balance = db.Column(db.Integer, default=500)
     # Player's private cards represented as a JSON value
     cards = db.Column(db.JSON)
     hands = db.Column(db.JSON)
@@ -270,6 +271,9 @@ class Game(db.Model):
 
     def update_game_db(self):
         player_names = []
+        self.players = db.session.query(Player).filter_by(gameid=self.id).all()
+        db.session.commit()
+        # db.session.query(Player).filter
         for player in self.players:
             player_names.append(player.getUsername()) 
         

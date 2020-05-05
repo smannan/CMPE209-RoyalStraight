@@ -30,11 +30,14 @@ amount = 50
 action = ""
 sessionKey = ""
 
-apiUserAdmin = "https://go.warnold.dev/api/useradmin"
-apiPlayer = "https://go.warnold.dev/api/player"
-apiUser = "https://go.warnold.dev/api/user"
-apiGame = "https://go.warnold.dev/api/game"
-apiUpdate = "https://go.warnold.dev/api/update"
+# serverName = "https://go.warnold.dev/api/"
+serverName = "http://localhost:5000/api/"
+
+apiUserAdmin = serverName + "useradmin"
+apiPlayer = serverName + "player"
+apiUser = serverName + "user"
+apiGame = serverName + "game"
+apiUpdate = serverName + "update"
 
 def getGame():
 	result = requests.get(apiGame + '/1')

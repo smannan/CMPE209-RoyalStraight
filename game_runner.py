@@ -1,3 +1,4 @@
+from time import sleep
 from poker_classes import (
     app,
     db,
@@ -30,7 +31,11 @@ if __name__ == "__main__":
     db.session.commit()
 
     # Add users
-    usernames = ['wearnold','ksbains','junlan66','smannan']
+    usernames = [
+        # 'wearnold',
+        'ksbains',
+        'junlan66',
+        'smannan']
     users = []
     for un in usernames:
         # Try and read the file for speed
@@ -64,14 +69,16 @@ if __name__ == "__main__":
         db.session.commit()
     
     waiting = True
-    if waiting:
-        pass
+    while waiting:
         # TODO: multiple games
         game_id = 1
-        # TODO: Check if this works
-        result = db.session.query(Player).filter_by(gameid=game_id)
+        result = db.session.query(Player).filter_by(gameid=game_id).all()
         if len(result) == 4:
             waiting = False
+        else:
+            sleep(1)
+            print("%d players in lobby, waiting..." % len(result))
+        
         # GET Check number of players in the game
 
     # #start the game
