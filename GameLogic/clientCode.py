@@ -90,10 +90,7 @@ def userNamePrompt():
 	#then also se the balance, sessio key, and ammount
 	balance = 500
 	sessionKey = ""
-	# print(answer["username"])
-	# print(list(game["game"].values()))
-	# print(list(game["game"].keys()))
-	# data = json.loads(getGame())
+	
 	data = getGame()
 	print("The pot is: " + str(getInfo(data, "pot")))
 	print("The bet is: " + str(getInfo(data, "bet")))
