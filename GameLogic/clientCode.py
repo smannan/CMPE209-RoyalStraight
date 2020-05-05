@@ -188,7 +188,6 @@ def postTurn(data):
 def runner(username, sessionKey):
 	# instead of true, should be as long as game is active
 	while True:
-		sleep(1)
 		turn = getTurn()
 		# print("Initial turn check: %s" % turn)
 
@@ -252,6 +251,7 @@ def runner(username, sessionKey):
 				print("Sorry! You don't have enough money to check this round, good luck next round")
 		elif response == 'fold':
 			print("You have folded, see ya next round!")
+			amount = 0
 
 		
 		data = {
@@ -262,6 +262,7 @@ def runner(username, sessionKey):
 		}
 
 		postTurn(data)
+		sleep(5)
 
 
 
