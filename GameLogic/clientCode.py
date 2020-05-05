@@ -35,9 +35,12 @@ apiUpdate = serverName + "update"
 
 def getGame():
 	result = requests.get(apiGame + '/1')
-	# print(result)
 	gameData = result.json()
-	return json.loads(gameData["data"])
+	try:
+		ret = json.loads(gameData["data"])
+	except:
+		ret = gameData['data']
+	return ret
 
 def getPlayer(player):
 	result = requests.get(apiPlayer + '/' + player)
@@ -135,12 +138,18 @@ def userNamePrompt():
 		'gameid':game_id
 	}
 	requests.post(apiPlayer, json=player_dict)
-
+	print("Added player to table")
 	#then also se the balance, sessio key, and ammount
 	balance = 500
 	sessionKey = ""
 	
 	data = getGame()
+	while not data.get('comCards', None):
+		print('Waiting for more players...')
+		sleep(5)
+		data = getGame()
+
+	
 	print("The pot is: %d" % data['pot'])
 	print("The bet is: %d" % data['bet'])
 	
