@@ -273,9 +273,13 @@ class Game(db.Model):
         player_names = []
         self.players = db.session.query(Player).filter_by(gameid=self.id).all()
         db.session.commit()
-        # db.session.query(Player).filter
         for player in self.players:
-            player_names.append(player.getUsername()) 
+            player_names.append(player.getUsername())
+            
+            # Class functions aren't initialized if player
+            #  was posted from API
+            player.__init__()
+            db.session.commit() 
         
         strComCards = []
         for card in self.comCards:
@@ -644,6 +648,10 @@ class Game(db.Model):
         #maybe have a while loop where the size is greater than 1? count(inRound > 1?) 
         # while (len(self.players) > 1):
         #this is the Hole Cards
+
+        # Make sure that the players all have the proper class funcs
+        self.update_game_db()
+
         Game.giveCardsBeg(self)
 
         #this is the Flop

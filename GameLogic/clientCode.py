@@ -25,10 +25,6 @@ except:
 # PoST(sessionKey) -> player Table. 
 # set the balance, betBalance...
 
-username = ""
-amount = 50
-action = ""
-sessionKey = ""
 
 # serverName = "https://go.warnold.dev/api/"
 serverName = "http://localhost:5000/api/"
@@ -227,12 +223,14 @@ def runner(username, sessionKey):
 			amount = 50
 		else:
 			amount = 0
+
+		print('Betting %d' % amount)
 		
 		data = {
 			'username':username,
 			'amount':amount,
 			'action':action,
-			'sessionKey':sessionKey
+			'token':sessionKey
 		}
 
 		postTurn(data)
