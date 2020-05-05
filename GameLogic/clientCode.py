@@ -123,8 +123,10 @@ def userNamePrompt():
 	try:
 		user_obj = requests.post(apiUser, json=user_dict).json()
 		enc_key = user_obj['enc_token']
+		print("Encrypted key provided by server:\n")
 		print(enc_key)
 		sessionKey = rsa_decrypt(enc_key, prikey)
+		print("Decrypted with your private key:\n")
 		print(sessionKey)
 	except:
 		# Just for testing
