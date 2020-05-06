@@ -35,12 +35,11 @@ apiUpdate = serverName + "update"
 
 def getGame():
 	result = requests.get(apiGame + '/1')
-	gameData = result.json()
 	try:
-		ret = json.loads(gameData["data"])
+		gameData = result.json()
+		return json.loads(gameData["data"])
 	except:
-		ret = gameData['data']
-	return ret
+		return {}
 
 def getPlayer(player):
 	result = requests.get(apiPlayer + '/' + player)
@@ -106,7 +105,7 @@ def userNamePrompt():
 			b64_pubkey = b2a(pubkey)
 		with open('prikey_%s' % username, 'rb') as f:
 			prikey = f.read()
-			b64_p = b2a(pubkey)
+			b64_pubkey = b2a(pubkey)
 	except:
 		prikey, pubkey = generateKeys()
 		with open('prikey_%s' % username, 'wb') as f:
@@ -119,6 +118,7 @@ def userNamePrompt():
 		'pubkey':b64_pubkey
 	}
 
+
 	# POST username
 	try:
 		user_obj = requests.post(apiUser, json=user_dict).json()
@@ -130,6 +130,7 @@ def userNamePrompt():
 		print(sessionKey)
 	except:
 		# Just for testing
+		print('Problem with getting')
 		sessionKey = 'whatever'
 	# GET game, probably game=1
 	game_id = 1
