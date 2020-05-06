@@ -709,10 +709,11 @@ class Game(db.Model):
                                 continue
                             print('Status.username = %s' % status.username)
                             if status.username == player.getUsername():
-                                if True:
-                                    print("Username matches, ignoring token")
-                                # if status.token == status.user_token:
-                                #     print('Found matching token')
+                                # Use this block for testing
+                                # if True:
+                                    # print("Username matches, ignoring token")
+                                if status.token == status.user_token:
+                                    print('Found matching token')
                                     if status.action in ('bet', 'raise'):
                                         # Do a thing
                                         player.bet(status.amount)
