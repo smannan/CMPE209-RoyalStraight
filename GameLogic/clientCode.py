@@ -143,7 +143,6 @@ def userNamePrompt():
 	print("Added player to table")
 	#then also se the balance, sessio key, and ammount
 	balance = 500
-	sessionKey = ""
 	
 	data = getGame()
 	while not data.get('comCards', None):
