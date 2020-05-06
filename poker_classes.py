@@ -2,15 +2,10 @@ import json
 import random
 from pprint import pprint
 import inquirer
-# from poker import *
-from SQLite import *
 from itertools import combinations
 from time import sleep
 from sqlalchemy.orm import validates, relationship
 from poker import Card
-
-# import sys
-# sys.path.append("..")
 
 from encryption import (
     generateB64SessionKey,
