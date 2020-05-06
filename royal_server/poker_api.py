@@ -1,4 +1,9 @@
 import flask_restless
+
+# Add top-level folder
+import sys
+sys.path.append("..")
+
 from poker_classes import (
     app,
     db,

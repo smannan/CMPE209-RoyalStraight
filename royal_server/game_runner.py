@@ -1,4 +1,7 @@
 from time import sleep
+
+import sys
+sys.path.append("..")
 from poker_classes import (
     app,
     db,
@@ -29,6 +32,12 @@ if __name__ == "__main__":
     poker = Game()
     db.session.add(poker)
     db.session.commit()
+
+
+    #######################################
+    # Comment out these lines if you don't
+    # want users precreated on the server.
+    #######################################
 
     # Add users
     usernames = [
@@ -68,6 +77,8 @@ if __name__ == "__main__":
         poker.addPlayer(player)
         db.session.commit()
     
+    #########################################
+
     waiting = True
     while waiting:
         # TODO: multiple games
